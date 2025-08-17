@@ -4,7 +4,7 @@ import { useMemo, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { updateStat } from "./arkham-actions";
 
-export default function HealthTracker({
+export default function SanityTracker({
   gameId,
   investigatorId,
   max,
@@ -17,7 +17,7 @@ export default function HealthTracker({
 }) {
   const [pending, startTransition] = useTransition();
   const display = useMemo(() => {
-    const cur = current ?? max; // default to full health if unset
+    const cur = current ?? max; // default to full sanity if unset
     return Math.max(0, Math.min(max, cur));
   }, [current, max]);
   const canIncrease = display < max;
@@ -26,7 +26,7 @@ export default function HealthTracker({
     const fd = new FormData();
     fd.set("gameId", gameId);
     fd.set("investigatorId", investigatorId);
-    fd.set("field", "currentHealth");
+    fd.set("field", "currentSanity");
     fd.set("delta", String(delta));
     startTransition(async () => {
       await updateStat(fd);
@@ -36,7 +36,7 @@ export default function HealthTracker({
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-neutral-600 dark:text-neutral-300">Health</span>
+      <span className="text-sm text-neutral-600 dark:text-neutral-300">Sanity</span>
       <div className="ml-auto flex items-center gap-2">
         <Button  variant="outline" disabled={pending} onClick={() => bump(-1)}>
           -
@@ -45,7 +45,7 @@ export default function HealthTracker({
           {display} / {max}
         </span>
         {canIncrease ? (
-          <Button  variant="outline" disabled={pending} onClick={() => bump(1)}>
+          <Button  variant="outline" disabled={ canIncrease} onClick={() => bump(1)}>
             +
           </Button>
         ) : null}

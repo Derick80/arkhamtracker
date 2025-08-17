@@ -3,6 +3,7 @@
 
 import ActionPips from "./action-pips";
 import HealthTracker from "./health-tracker";
+import SanityTracker from "./sanity-tracker";
 
 type CardInv = {
   investigatorId: string;
@@ -65,7 +66,26 @@ export default function InvestigatorCardGrid({ selected, gameId }: { selected: C
               <SkillTile abbr="Com" title="Combat" value={inv.skill_combat} />
               <SkillTile abbr="Agi" title="Agility" value={inv.skill_agility} />
             </div>
-           
+            {/* Health tracker */}
+            <div className="mt-3">
+              <HealthTracker
+                key={inv.name}
+                gameId={gameId}
+                investigatorId={inv.investigatorId}
+                max={inv.health}
+                current={inv.currentHealth}
+              />
+            </div>
+            {/* Sanity tracker */}
+            <div className="mt-3">
+              <SanityTracker
+              key={inv.name}
+                gameId={gameId}
+                investigatorId={inv.investigatorId}
+                max={inv.sanity}
+                current={inv.currentSanity}
+              />
+            </div>
             
           </div>
               <div className="mt-4">
