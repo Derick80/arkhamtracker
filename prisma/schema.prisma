@@ -93,6 +93,20 @@ model Game {
   investigators Investigator[]
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId  String
+  // Mythos phase tracking
+  mythosPlaceDoom Boolean @default(false)
+  mythosDrawP1    Boolean @default(false)
+  mythosDrawP2    Boolean @default(false)
+  mythosEnd       Boolean @default(false)
+  // Enemies phase tracking
+  enemiesHunterMove Boolean @default(false)
+  enemiesAttack     Boolean @default(false)
+  // Upkeep phase tracking
+  upkeepUnexhaust  Boolean @default(false)
+  upkeepDrawP1     Boolean @default(false)
+  upkeepDrawP2     Boolean @default(false)
+  upkeepGainRes    Boolean @default(false)
+  upkeepCheckHand  Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

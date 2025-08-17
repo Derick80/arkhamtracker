@@ -3,6 +3,7 @@
 
 import ActionPips from "./action-pips";
 import HealthTracker from "./health-tracker";
+import ResourcesTracker from "./resources-tracker";
 import SanityTracker from "./sanity-tracker";
 
 type CardInv = {
@@ -20,7 +21,9 @@ type CardInv = {
   skill_combat: number;
   skill_agility: number;
   currentHealth?: number | null;
-  actions?: number | 0;
+  currentSanity?: number | null;
+  currentResources?: number | null;
+  actions?: number | null;
 };
 
 export default function InvestigatorCardGrid({ selected, gameId }: { selected: CardInv[], gameId:string }) {
@@ -84,6 +87,15 @@ export default function InvestigatorCardGrid({ selected, gameId }: { selected: C
                 investigatorId={inv.investigatorId}
                 max={inv.sanity}
                 current={inv.currentSanity}
+              />
+            </div>
+            {/* Resources tracker */}
+            <div className="mt-3">
+              <ResourcesTracker
+                key={`${inv.name}-res`}
+                gameId={gameId}
+                investigatorId={inv.investigatorId}
+                current={inv.currentResources}
               />
             </div>
             

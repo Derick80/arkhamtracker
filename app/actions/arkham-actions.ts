@@ -329,7 +329,11 @@ export async function updateStat(formData: FormData) {
       break;
   }
 
-  const next = Math.max(minMap[field], Math.min(maxMap[field], currentVal + delta));
+  // For resources, allow unlimited increase (no upper cap). Others remain clamped to [min..max].
+  const next =
+    field === "resources"
+      ? Math.max(minMap.resources, currentVal + delta)
+      : Math.max(minMap[field], Math.min(maxMap[field], currentVal + delta));
 
   const data: { currentHealth?: number; currentSanity?: number; currentResources?: number; actions?: number } = {};
   if (field === "currentHealth") data.currentHealth = next;
@@ -393,5 +397,167 @@ export async function resetAllActions(formData: FormData) {
     data: { actions: 0 },
   });
 
+  revalidatePath(`/${gameId}`);
+}
+
+type MythosKey = "mythosPlaceDoom" | "mythosDrawP1" | "mythosDrawP2" | "mythosEnd";
+
+export async function getMythosState(gameId: string): Promise<{
+  mythosPlaceDoom: boolean;
+  mythosDrawP1: boolean;
+  mythosDrawP2: boolean;
+  mythosEnd: boolean;
+}> {
+  // Use raw query to avoid type coupling while migrations are pending
+  const rows = (await prisma.$queryRawUnsafe(
+    'SELECT "mythosPlaceDoom", "mythosDrawP1", "mythosDrawP2", "mythosEnd" FROM "Game" WHERE id = $1',
+    gameId,
+  )) as unknown as Array<Record<string, unknown>>;
+  const row = rows?.[0] as unknown as {
+    mythosPlaceDoom?: boolean;
+    mythosDrawP1?: boolean;
+    mythosDrawP2?: boolean;
+    mythosEnd?: boolean;
+  } | undefined;
+  return {
+    mythosPlaceDoom: row?.mythosPlaceDoom ?? false,
+    mythosDrawP1: row?.mythosDrawP1 ?? false,
+    mythosDrawP2: row?.mythosDrawP2 ?? false,
+    mythosEnd: row?.mythosEnd ?? false,
+  };
+}
+
+/** Toggle a mythos checkbox for the given game. */
+export async function toggleMythos(formData: FormData) {
+  const gameId = String(formData.get("gameId") ?? "");
+  const step = String(formData.get("step") ?? "") as MythosKey;
+  const allowed: Record<MythosKey, string> = {
+    mythosPlaceDoom: 'mythosPlaceDoom',
+    mythosDrawP1: 'mythosDrawP1',
+    mythosDrawP2: 'mythosDrawP2',
+    mythosEnd: 'mythosEnd',
+  };
+  const col = allowed[step as MythosKey];
+  if (!gameId || !col) return;
+
+  // Flip the boolean: col = NOT COALESCE(col, false)
+  await prisma.$executeRawUnsafe(
+    `UPDATE "Game" SET "${col}" = NOT COALESCE("${col}", false) WHERE id = $1`,
+    gameId,
+  );
+  revalidatePath(`/${gameId}`);
+}
+
+/** Reset all mythos checkboxes to false for a game. */
+export async function resetMythos(formData: FormData) {
+  const gameId = String(formData.get("gameId") ?? "");
+  if (!gameId) return;
+  await prisma.$executeRawUnsafe(
+    'UPDATE "Game" SET "mythosPlaceDoom"=false, "mythosDrawP1"=false, "mythosDrawP2"=false, "mythosEnd"=false WHERE id = $1',
+    gameId,
+  );
+  revalidatePath(`/${gameId}`);
+}
+
+// Enemies Phase
+type EnemiesKey = "enemiesHunterMove" | "enemiesAttack";
+
+export async function getEnemiesState(gameId: string): Promise<{
+  enemiesHunterMove: boolean;
+  enemiesAttack: boolean;
+}> {
+  const rows = (await prisma.$queryRawUnsafe(
+    'SELECT "enemiesHunterMove", "enemiesAttack" FROM "Game" WHERE id = $1',
+    gameId,
+  )) as unknown as Array<Record<string, unknown>>;
+  const row = rows?.[0] as { enemiesHunterMove?: boolean; enemiesAttack?: boolean } | undefined;
+  return {
+    enemiesHunterMove: row?.enemiesHunterMove ?? false,
+    enemiesAttack: row?.enemiesAttack ?? false,
+  };
+}
+
+export async function toggleEnemies(formData: FormData) {
+  const gameId = String(formData.get("gameId") ?? "");
+  const step = String(formData.get("step") ?? "") as EnemiesKey;
+  const allowed: Record<EnemiesKey, string> = {
+    enemiesHunterMove: 'enemiesHunterMove',
+    enemiesAttack: 'enemiesAttack',
+  };
+  const col = allowed[step as EnemiesKey];
+  if (!gameId || !col) return;
+  await prisma.$executeRawUnsafe(
+    `UPDATE "Game" SET "${col}" = NOT COALESCE("${col}", false) WHERE id = $1`,
+    gameId,
+  );
+  revalidatePath(`/${gameId}`);
+}
+
+export async function resetEnemies(formData: FormData) {
+  const gameId = String(formData.get("gameId") ?? "");
+  if (!gameId) return;
+  await prisma.$executeRawUnsafe(
+    'UPDATE "Game" SET "enemiesHunterMove"=false, "enemiesAttack"=false WHERE id = $1',
+    gameId,
+  );
+  revalidatePath(`/${gameId}`);
+}
+
+// Upkeep Phase
+type UpkeepKey = "upkeepUnexhaust" | "upkeepDrawP1" | "upkeepDrawP2" | "upkeepGainRes" | "upkeepCheckHand";
+
+export async function getUpkeepState(gameId: string): Promise<{
+  upkeepUnexhaust: boolean;
+  upkeepDrawP1: boolean;
+  upkeepDrawP2: boolean;
+  upkeepGainRes: boolean;
+  upkeepCheckHand: boolean;
+}> {
+  const rows = (await prisma.$queryRawUnsafe(
+    'SELECT "upkeepUnexhaust", "upkeepDrawP1", "upkeepDrawP2", "upkeepGainRes", "upkeepCheckHand" FROM "Game" WHERE id = $1',
+    gameId,
+  )) as unknown as Array<Record<string, unknown>>;
+  const row = rows?.[0] as {
+    upkeepUnexhaust?: boolean;
+    upkeepDrawP1?: boolean;
+    upkeepDrawP2?: boolean;
+    upkeepGainRes?: boolean;
+    upkeepCheckHand?: boolean;
+  } | undefined;
+  return {
+    upkeepUnexhaust: row?.upkeepUnexhaust ?? false,
+    upkeepDrawP1: row?.upkeepDrawP1 ?? false,
+    upkeepDrawP2: row?.upkeepDrawP2 ?? false,
+    upkeepGainRes: row?.upkeepGainRes ?? false,
+    upkeepCheckHand: row?.upkeepCheckHand ?? false,
+  };
+}
+
+export async function toggleUpkeep(formData: FormData) {
+  const gameId = String(formData.get("gameId") ?? "");
+  const step = String(formData.get("step") ?? "") as UpkeepKey;
+  const allowed: Record<UpkeepKey, string> = {
+    upkeepUnexhaust: 'upkeepUnexhaust',
+    upkeepDrawP1: 'upkeepDrawP1',
+    upkeepDrawP2: 'upkeepDrawP2',
+    upkeepGainRes: 'upkeepGainRes',
+    upkeepCheckHand: 'upkeepCheckHand',
+  };
+  const col = allowed[step as UpkeepKey];
+  if (!gameId || !col) return;
+  await prisma.$executeRawUnsafe(
+    `UPDATE "Game" SET "${col}" = NOT COALESCE("${col}", false) WHERE id = $1`,
+    gameId,
+  );
+  revalidatePath(`/${gameId}`);
+}
+
+export async function resetUpkeep(formData: FormData) {
+  const gameId = String(formData.get("gameId") ?? "");
+  if (!gameId) return;
+  await prisma.$executeRawUnsafe(
+    'UPDATE "Game" SET "upkeepUnexhaust"=false, "upkeepDrawP1"=false, "upkeepDrawP2"=false, "upkeepGainRes"=false, "upkeepCheckHand"=false WHERE id = $1',
+    gameId,
+  );
   revalidatePath(`/${gameId}`);
 }
