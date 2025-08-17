@@ -3,6 +3,7 @@ import InvestigatorCardGrid from "../actions/selected-card";
 import MythosTracker from "../actions/mythos-tracker";
 import EnemiesTracker from "../actions/enemies-tracker";
 import UpkeepTracker from "../actions/upkeep-tracker";
+import ResetAllButton from "../actions/reset-all-button";
 
 export default async function Page(props: {
   params: Promise<{
@@ -20,9 +21,11 @@ console.log(game, "game")
     <article className=" relative z-10 mx-auto max-w-4xl space-y-4 overflow-auto px-2 py-4 align-middle md:px-0">
    
      <div className="grid gap-4">
+       <div className="flex items-center justify-between">
+         <h2 className="text-xl font-semibold">Phases</h2>
+         <ResetAllButton gameId={id} />
+       </div>
        <MythosTracker gameId={id} />
-       <EnemiesTracker gameId={id} />
-       <UpkeepTracker gameId={id} />
      </div>
 
      <InvestigatorCardGrid

@@ -27,8 +27,11 @@ export default function MythosTracker({ gameId }: { gameId: string }) {
       const s = await getMythosState(gameId);
       if (mounted && s) setState(s);
     })();
+    const handler = () => setState({ mythosPlaceDoom: false, mythosDrawP1: false, mythosDrawP2: false, mythosEnd: false });
+    window.addEventListener("arkham:reset-all", handler);
     return () => {
       mounted = false;
+      window.removeEventListener("arkham:reset-all", handler);
     };
   }, [gameId]);
 

@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import NewGameForm from "./actions/new-game";
 import { getArkhamGames } from "./actions/arkham-actions";
 import Link from "next/link";
+import ModeToggle from "@/components/mode-toggle";
 
 export default async function Home() {
   const session = await auth()
@@ -10,6 +11,7 @@ export default async function Home() {
   return (
     <div className="font-sans flex flex-col items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
      <main>
+      <ModeToggle />
       <h1 className="text-3xl font-bold">Arkham Tracker</h1>
       <p className="text-lg">Welcome {session?.user?.name || "Guest"}</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -28,8 +28,17 @@ export default function UpkeepTracker({ gameId }: { gameId: string }) {
       const s = await getUpkeepState(gameId);
       if (mounted && s) setState(s);
     })();
+    const handler = () => setState({
+      upkeepUnexhaust: false,
+      upkeepDrawP1: false,
+      upkeepDrawP2: false,
+      upkeepGainRes: false,
+      upkeepCheckHand: false,
+    });
+    window.addEventListener("arkham:reset-all", handler);
     return () => {
       mounted = false;
+      window.removeEventListener("arkham:reset-all", handler);
     };
   }, [gameId]);
 

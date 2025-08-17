@@ -561,3 +561,25 @@ export async function resetUpkeep(formData: FormData) {
   );
   revalidatePath(`/${gameId}`);
 }
+
+/** Reset all phase trackers (Mythos, Enemies, Upkeep) and all investigators' actions to baseline. */
+export async function resetAllTracks(formData: FormData) {
+  const gameId = String(formData.get("gameId") ?? "");
+  if (!gameId) return;
+
+  await prisma.$transaction([
+    // Reset all investigator actions to 0
+    prisma.investigator.updateMany({ where: { gameId }, data: { actions: 0 } }),
+    // Reset all boolean flags on Game for Mythos, Enemies, and Upkeep
+    prisma.$executeRawUnsafe(
+      'UPDATE "Game" SET ' +
+        '"mythosPlaceDoom"=false, "mythosDrawP1"=false, "mythosDrawP2"=false, "mythosEnd"=false, ' +
+        '"enemiesHunterMove"=false, "enemiesAttack"=false, ' +
+        '"upkeepUnexhaust"=false, "upkeepDrawP1"=false, "upkeepDrawP2"=false, "upkeepGainRes"=false, "upkeepCheckHand"=false ' +
+      'WHERE id = $1',
+      gameId,
+    ),
+  ]);
+
+  revalidatePath(`/${gameId}`);
+}

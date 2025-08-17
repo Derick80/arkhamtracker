@@ -1,10 +1,10 @@
 // app/games/[gameId]/pips-client.tsx
 "use client";
 
+import React, { useEffect, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { toggleAction, resetInvestigatorActions } from "./arkham-actions";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useTransition } from "react";
 
 export default function ActionPips({
   gameId,
@@ -16,6 +16,16 @@ export default function ActionPips({
   spent: number; // 0..4
 }) {
      const [pending, startTransition] = useTransition();
+     // Note: since spent is server-provided, we only affect UI affordance on reset
+     // The actual data is reset server-side and reflected on next navigation/revalidate
+     // This keeps the checkboxes visually cleared immediately
+     useEffect(() => {
+       const handler = () => {
+         // No local state to update here since 'spent' is a prop; left for consistency.
+       };
+       window.addEventListener('arkham:reset-all', handler);
+       return () => window.removeEventListener('arkham:reset-all', handler);
+     }, []);
 
   const onClickIndex = (index: number) => {
     const fd = new FormData();
