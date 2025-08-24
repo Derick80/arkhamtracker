@@ -38,15 +38,15 @@ export default function ActionPips({
   };
 
   const onReset = () => {
-    const fd = new FormData();
-    fd.set("gameId", gameId);
-    fd.set("investigatorId", investigatorId);
+    const formData = new FormData();
+    formData.set("gameId", gameId);
+    formData.set("investigatorId", investigatorId);
     startTransition(async () => {
-      await resetInvestigatorActions(fd);
+      await resetInvestigatorActions(formData);
     });
   };
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between p-2">
       <div className="flex items-center gap-2">
         {[0, 1, 2, 3].map((i) => {
           const checked = i < spent;

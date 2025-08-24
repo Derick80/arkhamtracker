@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useTransition } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { updateStat } from "./arkham-actions";
 
@@ -32,7 +33,10 @@ export default function ResourcesTracker({
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-neutral-600 dark:text-neutral-300">Resources</span>
+      <span className="text-sm text-neutral-600 dark:text-neutral-300 flex items-center gap-1">
+        <Image src="/assets/images/Resource.webp" alt="Resources" width={16} height={16} />
+        Resources
+      </span>
       <div className="ml-auto flex items-center gap-2">
         <Button variant="outline" disabled={pending} onClick={() => bump(-1)}>
           -

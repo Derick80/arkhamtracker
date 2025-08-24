@@ -3,21 +3,24 @@ import NewGameForm from "./actions/new-game";
 import { getArkhamGames } from "./actions/arkham-actions";
 import Link from "next/link";
 import ModeToggle from "@/components/mode-toggle";
+import DeleteGameButton from "./actions/delete-arkham-game";
+import { Separator } from "@/components/ui/separator";
 
 export default async function Home() {
   const session = await auth()
   console.log("Session:", session);
   const games = await getArkhamGames();
   return (
-    <div className="font-sans flex flex-col items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
+    <div className="font-sans border-2 border-red-500 flex flex-col items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
      <main>
       <ModeToggle />
       <h1 className="text-3xl font-bold">Arkham Tracker</h1>
-      <p className="text-lg">Welcome {session?.user?.name || "Guest"}</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <p className="text-lg">Welcome {session?.user?.name || "Guest"} </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border">
+
         {Array.isArray(games) ? (
           games.map((game) => (
-            <div key={game.id} className="flex flex-col border p-4 rounded">
+            <div key={game.id} className="relative flex flex-col border p-4 rounded">
               <h2 className="text-xl font-semibold">{game.name}</h2>
               <Link
                 href={`/${game.id}`}
@@ -26,6 +29,10 @@ export default async function Home() {
                   View Game
                 </Link>
               <p>Investigators: {game.investigators.length}</p>
+              <DeleteGameButton
+            gameId={game.id
+            }
+           />
             </div>
           ))
         ) : (
@@ -34,6 +41,9 @@ export default async function Home() {
           </div>
         )}
       </div>
+      <h2 className="text-2xl font-semibold">Create New Game</h2>
+            <Separator />
+
 <NewGameForm />
      </main>
      

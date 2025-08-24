@@ -1,10 +1,16 @@
+
+'use client'
 // app/games/[gameId]/investigator-cards.tsx
 // Server component (presentational). No client code required.
 
+import { Button } from "@/components/ui/button";
 import ActionPips from "./action-pips";
+import { deleteInvestigator } from "./arkham-actions";
 import HealthTracker from "./health-tracker";
 import ResourcesTracker from "./resources-tracker";
 import SanityTracker from "./sanity-tracker";
+import Image from "next/image";
+import { useActionState } from "react";
 
 type CardInv = {
   investigatorId: string;
@@ -27,8 +33,8 @@ type CardInv = {
 };
 
 export default function InvestigatorCardGrid({ selected, gameId }: { selected: CardInv[], gameId:string }) {
-    console.log(selected, "selected")
-  if (!selected.length) {
+const [state,action,isPending]= useActionState(deleteInvestigator,null)
+    if (!selected.length) {
     return (
       <div className="rounded-2xl border p-4">
         <p className="text-sm text-muted-foreground">No investigators yet.</p>
@@ -39,7 +45,8 @@ export default function InvestigatorCardGrid({ selected, gameId }: { selected: C
   return (
     <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {selected.map((inv) => (
-        <li key={inv.name} className="rounded-2xl border overflow-hidden bg-white dark:bg-neutral-950">
+        <li key={inv.code} className="relative rounded-2xl border overflow-hidden bg-primary-foreground dark:bg-neutral-950">
+            
           {/* Faction color bar */}
           <div className={`h-1 w-full ${factionBar(inv.factionCode ?? "")}`} />
 
@@ -52,22 +59,54 @@ export default function InvestigatorCardGrid({ selected, gameId }: { selected: C
                   <p className="truncate text-sm italic text-neutral-500 dark:text-neutral-400">{inv.subname}</p>
                 ) : null}
               </div>
-              <span className="shrink-0 text-xs text-neutral-500">{inv.code}</span>
+              <span className="shrink-0 text-xs text-muted-foreground">{inv.code}</span>
             </div>
-
+ {/* Remove from game */}
+              <form 
+              action={action} 
+              className="shrink-0">
+                <input type="hidden" name="gameId" value={gameId} />
+                <input
+                  type="hidden"
+                  name="investigatorId"
+                  value={inv.investigatorId}
+                />
+                <Button
+                  type="submit"
+                  variant="destructive"
+                  size="icon"
+                  className="h-8 w-8"
+                  aria-label={`Remove ${inv.name} from game`}
+                  title="Remove from game"
+                  disabled={isPending}
+                >
+                  {/* Avoid extra deps; simple × glyph works well */}
+                  <span className="text-lg leading-none">
+                    &times;
+                  </span>
+                </Button>
+              </form>
             {/* Health / Sanity */}
             <div className="mt-3 flex items-center gap-3 text-sm">
               {inv.factionName ? <Badge label={inv.factionName} /> : null}
-              <span className="ml-auto tabular-nums">❤️ {inv.health}</span>
-              <span className="tabular-nums">🧠 {inv.sanity}</span>
+              <div className="ml-auto flex items-center gap-3">
+                <div className="flex items-center gap-1 tabular-nums">
+                  <Image src="/assets/images/Health.webp" alt="Health" width={16} height={16} />
+                  <span>{inv.health}</span>
+                </div>
+                <div className="flex items-center gap-1 tabular-nums">
+                  <Image src="/assets/images/Sanity.webp" alt="Sanity" width={16} height={16} />
+                  <span>{inv.sanity}</span>
+                </div>
+              </div>
             </div>
 
             {/* Skills */}
             <div className="mt-4 grid grid-cols-4 gap-2">
-              <SkillTile abbr="Will" title="Willpower" value={inv.skill_willpower} />
-              <SkillTile abbr="Int" title="Intellect" value={inv.skill_intellect} />
-              <SkillTile abbr="Com" title="Combat" value={inv.skill_combat} />
-              <SkillTile abbr="Agi" title="Agility" value={inv.skill_agility} />
+              <SkillTile icon="/assets/images/Willpower01.webp" abbr="Will" title="Willpower" value={inv.skill_willpower} />
+              <SkillTile icon="/assets/images/Intellect01.webp" abbr="Int" title="Intellect" value={inv.skill_intellect} />
+              <SkillTile icon="/assets/images/Combat01.webp" abbr="Com" title="Combat" value={inv.skill_combat} />
+              <SkillTile icon="/assets/images/Agility01.webp" abbr="Agi" title="Agility" value={inv.skill_agility} />
             </div>
             {/* Health tracker */}
             <div className="mt-3">
@@ -101,7 +140,7 @@ export default function InvestigatorCardGrid({ selected, gameId }: { selected: C
             
           </div>
               <div className="mt-4">
-              <div className="mb-1 flex items-center justify-between text-sm">
+              <div className="mb-1 flex items-center justify-between text-sm p-2">
                 <span>Actions</span>
                 {typeof inv.actions === "number" ? (
                   <span className="tabular-nums text-neutral-500">
@@ -118,13 +157,14 @@ export default function InvestigatorCardGrid({ selected, gameId }: { selected: C
   );
 }
 
-function SkillTile({ abbr, title, value }: { abbr: string; title: string; value: number }) {
+function SkillTile({ icon, abbr, title, value }: { icon: string; abbr: string; title: string; value: number }) {
   return (
     <div className="rounded-xl border p-2 text-center">
-      <div className="text-[10px] uppercase tracking-wide text-neutral-500">{abbr}</div>
-      <div className="mt-1 text-xl font-semibold tabular-nums" aria-label={`${title}: ${value}`}>
-        {value}
+      <div className="flex items-center justify-center gap-1">
+        <Image src={icon} alt={`${title} icon`} width={18} height={18} />
+        <div className="text-[10px] uppercase tracking-wide text-neutral-500">{abbr}</div>
       </div>
+      <div className="mt-1 text-xl font-semibold tabular-nums" aria-label={`${title}: ${value}`}>{value}</div>
     </div>
   );
 }

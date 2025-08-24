@@ -11,6 +11,8 @@ const NewGameForm = () => {
 const [state, action, isPending]= useActionState(createArkhamGame,null)
 
     return(
+        <div 
+        className="flex flex-col gap-2">
         <form 
         action={action}
         >
@@ -28,6 +30,7 @@ const [state, action, isPending]= useActionState(createArkhamGame,null)
                 }
             </Button>
         </form>
+        </div>
     )
 
 }

@@ -8,10 +8,10 @@ export default function ResetAllButton({ gameId }: { gameId: string }) {
   const [pending, startTransition] = useTransition();
 
   const onClick = () => {
-    const fd = new FormData();
-    fd.set("gameId", gameId);
+    const formData = new FormData();
+    formData.set("gameId", gameId);
     startTransition(async () => {
-      await resetAllTracks(fd);
+      await resetAllTracks(formData);
       // Let client components update immediately
       if (typeof window !== "undefined") {
         window.dispatchEvent(new CustomEvent("arkham:reset-all"));

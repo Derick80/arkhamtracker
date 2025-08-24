@@ -18,8 +18,7 @@ type InvestigatorSelectProps ={
 
 const InvestigatorSelect = ({investigators, gameId}:InvestigatorSelectProps)=>{
 const [open, setOpen] = useState(false);
-const [value, setValue] = useState<string | null>(null);
- const [pending, startTransition] = useTransition();
+
 
 const [state, action, isPending]= useActionState(addInvestigator,null)
   if (!investigators.length) {
@@ -30,16 +29,16 @@ const [state, action, isPending]= useActionState(addInvestigator,null)
     );
   }
     return(
-        <div className="rounded-2xl border p-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-medium">Add Investigator</h2>
-        <button
+        <div className="rounded-2xl border">
+      <div className=" flex items-center justify-between">
+    
+        <Button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="text-sm underline underline-offset-4"
+          className=" text-sm"
         >
-          {open ? "Hide" : "Add another"}
-        </button>
+          {open ? "x" : "Add another"}
+        </Button>
       </div>
 
       {open && (

@@ -106,7 +106,7 @@ return {error:'need auth'
 
 }}
 
-return await prisma.game.create({
+ await prisma.game.create({
   data: {
     name: validatedData.data.gameName,
     userId: userId,
@@ -114,7 +114,10 @@ return await prisma.game.create({
   include: {
     investigators: true,
   },
-});}
+  
+})
+  revalidatePath(`/}`);
+}
 
 
 export const getArkhamGames = async () => {
@@ -181,8 +184,15 @@ const validatedData = addInvestigatorSchema.safeParse({
   if (!investigatorToSave) {
     return { error: "Investigator not found" };
   }
+const isAlreadyInGame = await prisma.investigator.findFirst({
+  where: {
+    gameId: gameId,
+    code: investigatorCode,
+  }
+});
+if(isAlreadyInGame) return 
 
-  return await prisma.investigator.create({
+  const created = await prisma.investigator.create({
     data: {
       gameId: gameId,
       code: investigatorCode,
@@ -199,6 +209,10 @@ const validatedData = addInvestigatorSchema.safeParse({
 
     },
   });
+  if (!created) {
+    return { error: "Failed to add investigator" };
+  }
+  revalidatePath(`/${gameId}`);
 }
 
 
@@ -569,7 +583,10 @@ export async function resetAllTracks(formData: FormData) {
 
   await prisma.$transaction([
     // Reset all investigator actions to 0
-    prisma.investigator.updateMany({ where: { gameId }, data: { actions: 0 } }),
+    prisma.investigator.updateMany({ where: { gameId }, data: { actions: 0,
+
+
+     } }),
     // Reset all boolean flags on Game for Mythos, Enemies, and Upkeep
     prisma.$executeRawUnsafe(
       'UPDATE "Game" SET ' +
@@ -581,5 +598,31 @@ export async function resetAllTracks(formData: FormData) {
     ),
   ]);
 
+  revalidatePath(`/${gameId}`);
+}
+
+
+
+
+
+
+const deleteGameSchema = z.object({
+  gameId: z.string().min(1, "Game ID is required"),
+})
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const  deleteArkhamGame = async(prevState:any, formData:FormData)=>{
+  const validatedData = deleteGameSchema.safeParse({
+      gameId: formData.get("gameId"),
+  })
+  if(!validatedData.success){
+      return {error:validatedData.error}
+  }
+  const { gameId } = validatedData.data
+   await prisma.game.delete({
+      where: {
+          id: gameId
+      }
+  })
   revalidatePath(`/${gameId}`);
 }
