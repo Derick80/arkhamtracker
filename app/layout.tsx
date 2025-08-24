@@ -33,7 +33,7 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
-        ><div className="min-h-screen">{children}</div></ThemeProvider>
+        ><main className="font-sans flex flex-col items-center justify-items-center min-h-screen p-8 pb-20 gap-4 sm:p-20">{children}</main></ThemeProvider>
       </body>
     </html>
   );

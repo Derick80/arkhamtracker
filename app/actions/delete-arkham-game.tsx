@@ -20,10 +20,11 @@ const [state, action, isPending]= useActionState(deleteArkhamGame,null)
   <Button
     type="submit"
     variant="destructive"
-    size="icon"
-    className=" rounded-full shadow-sm transition hover:scale-[1.03]"
+    size='icon'
+    
     aria-label={`Remove this investigator  from game`}
     title="Remove from game"
+    disabled={isPending}
   >
     <span className="text-lg leading-none" aria-hidden>
     <XIcon />

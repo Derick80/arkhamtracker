@@ -5,35 +5,56 @@ import Link from "next/link";
 import ModeToggle from "@/components/mode-toggle";
 import DeleteGameButton from "./actions/delete-arkham-game";
 import { Separator } from "@/components/ui/separator";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default async function Home() {
-  const session = await auth()
+  const session = await auth();
   console.log("Session:", session);
   const games = await getArkhamGames();
   return (
-    <div className="font-sans border-2 border-red-500 flex flex-col items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-     <main>
+    <div
+    className="flex flex-col w-full"
+    >
       <ModeToggle />
       <h1 className="text-3xl font-bold">Arkham Tracker</h1>
       <p className="text-lg">Welcome {session?.user?.name || "Guest"} </p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border">
-
+      <Separator />
+      <h2 className="text-2xl font-semibold">Your Games</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border w-full">
         {Array.isArray(games) ? (
           games.map((game) => (
-            <div key={game.id} className="relative flex flex-col border p-4 rounded">
-              <h2 className="text-xl font-semibold">{game.name}</h2>
-              <Link
-                href={`/${game.id}`}
-                prefetch
-                className="text-blue-500 hover:underline ml-4">
+            <Card key={game.id} className="relative">
+              <CardHeader>
+                <CardTitle>{game.name}</CardTitle>
+                <Separator />
+              </CardHeader>
+              <CardContent>
+                <p>Investigators: {game.investigators.length}</p>
+                {game.investigators.length > 0 && (
+                  <ul>
+                    {game.investigators.map((investigator) => (
+                      <li key={investigator.id}>{investigator.name}</li>
+                    ))}
+                  </ul>
+                )}
+              </CardContent>
+              <DeleteGameButton gameId={game.id} />
+              <CardFooter>
+                <Link
+                  href={`/${game.id}`}
+                  prefetch
+                  className="text-blue-500 hover:underline ml-4"
+                >
                   View Game
                 </Link>
-              <p>Investigators: {game.investigators.length}</p>
-              <DeleteGameButton
-            gameId={game.id
-            }
-           />
-            </div>
+              </CardFooter>
+            </Card>
           ))
         ) : (
           <div className="text-red-500">
@@ -42,11 +63,9 @@ export default async function Home() {
         )}
       </div>
       <h2 className="text-2xl font-semibold">Create New Game</h2>
-            <Separator />
+      <Separator />
 
-<NewGameForm />
-     </main>
-     
+      <NewGameForm />
     </div>
   );
 }

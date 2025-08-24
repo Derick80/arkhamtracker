@@ -176,6 +176,14 @@ const validatedData = addInvestigatorSchema.safeParse({
   }
   const {gameId, investigatorCode} = validatedData.data;
 
+  // Enforce max of 2 investigators per game (server-side guard)
+  const currentCount = await prisma.investigator.count({
+    where: { gameId }
+  });
+  if (currentCount >= 2) {
+    return { error: "Maximum of 2 investigators reached for this game" };
+  }
+
   const investigatorToSave = await prisma.allInvestigators.findUnique({
     where: {
       code: investigatorCode,
@@ -190,7 +198,9 @@ const isAlreadyInGame = await prisma.investigator.findFirst({
     code: investigatorCode,
   }
 });
-if(isAlreadyInGame) return 
+if(isAlreadyInGame) {
+  return { error: "Investigator already added" };
+}
 
   const created = await prisma.investigator.create({
     data: {
@@ -213,6 +223,7 @@ if(isAlreadyInGame) return
     return { error: "Failed to add investigator" };
   }
   revalidatePath(`/${gameId}`);
+  return { success: true };
 }
 
 
@@ -622,6 +633,32 @@ export const  deleteArkhamGame = async(prevState:any, formData:FormData)=>{
    await prisma.game.delete({
       where: {
           id: gameId
+      }
+  })
+  revalidatePath(`/${gameId}`);
+}
+
+
+// create a function that updates the scenario string in a game
+const updateScenarioSchema = z.object({
+  gameId: z.string().min(1, "Game ID is required"),
+  scenario: z.string().min(1, "Scenario is required"),
+})
+export const updateScenario = async (prevState: unknown, formData: FormData) => {
+  const validatedData = updateScenarioSchema.safeParse({
+      gameId: formData.get("gameId"),
+      scenario: formData.get("scenario"),
+  })
+  if(!validatedData.success){
+      return {error:validatedData.error}
+  }
+  const { gameId, scenario } = validatedData.data
+   await prisma.game.update({
+      where: {
+          id: gameId
+      },
+      data: {
+          scenario
       }
   })
   revalidatePath(`/${gameId}`);

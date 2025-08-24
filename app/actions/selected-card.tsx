@@ -52,19 +52,25 @@ const [state,action,isPending]= useActionState(deleteInvestigator,null)
 
           <div className="p-4">
             {/* Header */}
-            <div className="flex items-baseline justify-between gap-3">
+            <div className="relative flex items-baseline justify-between gap-3">
               <div className="min-w-0">
                 <h3 className="truncate text-lg font-semibold">{inv.name}</h3>
                 {inv.subname ? (
                   <p className="truncate text-sm italic text-neutral-500 dark:text-neutral-400">{inv.subname}</p>
                 ) : null}
               </div>
-              <span className="shrink-0 text-xs text-muted-foreground">{inv.code}</span>
+          
             </div>
  {/* Remove from game */}
-              <form 
-              action={action} 
-              className="shrink-0">
+              <form
+                action={action}
+                className="shrink-0 absolute right-4 top-4"
+                onSubmit={e => {
+                  if (!window.confirm(`Remove ${inv.name} from game?`)) {
+                    e.preventDefault();
+                  }
+                }}
+              >
                 <input type="hidden" name="gameId" value={gameId} />
                 <input
                   type="hidden"
@@ -80,10 +86,7 @@ const [state,action,isPending]= useActionState(deleteInvestigator,null)
                   title="Remove from game"
                   disabled={isPending}
                 >
-                  {/* Avoid extra deps; simple × glyph works well */}
-                  <span className="text-lg leading-none">
-                    &times;
-                  </span>
+                  <span className="text-lg leading-none">&times;</span>
                 </Button>
               </form>
             {/* Health / Sanity */}

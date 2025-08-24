@@ -12,21 +12,24 @@ const [state, action, isPending]= useActionState(createArkhamGame,null)
 
     return(
         <div 
-        className="flex flex-col gap-2">
+       >
         <form 
         action={action}
+         className="flex flex-col gap-4"
         >
             <Label htmlFor="Game Name">Game Name</Label>
             <Input 
             name='gameName'
             type="text"
+            required
+            placeholder="Enter a name for your game"
             />
             <Button 
             type='submit'
             disabled={isPending}
             >
                 {
-                    isPending ? 'Submitting' : 'submit' 
+                    isPending ? 'Submitting' : 'Create Game' 
                 }
             </Button>
         </form>

@@ -1,4 +1,4 @@
-import { getAllInvestigators, getDBInvestigators, getGameById } from "../actions/arkham-actions";
+import {  getDBInvestigators, getGameById } from "../actions/arkham-actions";
 import InvestigatorCardGrid from "../actions/selected-card";
 import MythosTracker from "../actions/mythos-tracker";
 import EnemiesTracker from "../actions/enemies-tracker";
@@ -28,7 +28,9 @@ if(!investigators) return
          <h2 className="text-xl font-semibold">Phases</h2>
          <InvestigatorSelect 
          gameId={game.id}
-         investigators={investigators} />
+         investigators={investigators}
+         currentSelected={game.investigators}
+         />
          <ResetAllButton gameId={id} />
        </div>
        <MythosTracker gameId={id} />
