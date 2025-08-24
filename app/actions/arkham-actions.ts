@@ -13,6 +13,7 @@ export type SimpleInvestigator = Pick<
   | "code"
   | "name"
   | "subname"
+  | "faction_name"
   | "health"
   | "sanity"
   | "skill_willpower"
@@ -54,12 +55,14 @@ export const getAllInvestigators = async (): Promise<SimpleInvestigator[]> => {
       (card, index, self) =>
         index === self.findIndex((c) => c.code === card.code),
     );
+    console.log(filtered_investigatorCards,"filtered_investigatorCards")
     const simpleInvestigator = filtered_investigatorCards.map((
       card
     ) => ({
       code: card.code,
       name: card.name,
       subname: card.subname,
+      faction_name: card.faction_name,
       health: card.health,
       sanity: card.sanity,
       skill_willpower: card.skill_willpower,
@@ -83,7 +86,8 @@ export const getAllInvestigators = async (): Promise<SimpleInvestigator[]> => {
 
 const createGameSchema = z.object({
   gameName: z.string().min(1, "Game name is required"),
-})
+  scenario: z.string().min(1, "Scenario is required"),
+});
 
 
 export const createArkhamGame = async (
@@ -91,6 +95,7 @@ export const createArkhamGame = async (
 ) =>{
 const validatedData = createGameSchema.safeParse({
   gameName: formData.get("gameName"),
+  scenario: formData.get("scenario"),
 });
 if (!validatedData.success) {
   return { error: validatedData.error };
@@ -106,9 +111,11 @@ return {error:'need auth'
 
 }}
 
+const {gameName, scenario} = validatedData.data;
  await prisma.game.create({
   data: {
-    name: validatedData.data.gameName,
+    name: gameName,
+    scenario: scenario,
     userId: userId,
   },
   include: {
@@ -208,6 +215,7 @@ if(isAlreadyInGame) {
       code: investigatorCode,
       name: investigatorToSave.name,
       subname: investigatorToSave.subname,
+      faction_name: investigatorToSave.faction_name,
       health: investigatorToSave.health,
       sanity: investigatorToSave.sanity,
       skill_willpower: investigatorToSave.skill_willpower,
@@ -219,6 +227,7 @@ if(isAlreadyInGame) {
 
     },
   });
+  console.log(created, "created investigator");
   if (!created) {
     return { error: "Failed to add investigator" };
   }
@@ -234,18 +243,25 @@ export const getGameById =async (gameId:string)=>{
       id: gameId,
     },
     include: {
-      investigators: true,
+  investigators: true, // includes faction_name field on Investigator model
     },
   });
   if (!game) {
     return null;
   } 
 
+  // Local type reflecting the Investigator model including optional runtime fields
+  type InvestigatorRecord = typeof game.investigators[number] & { faction_name?: string | null };
+
   const simpleGame = {
     id: game.id,
     name: game.name,
-    investigators: game.investigators.map((inv) => ({
+    scenario: game.scenario,
+    investigators: (game.investigators as InvestigatorRecord[]).map((inv) => ({
       investigatorId: inv.id,
+  // Normalize naming for client components expecting factionName / factionCode
+  factionName: inv.faction_name,
+  factionCode: inv.faction_name ? inv.faction_name.toLowerCase() : undefined,
       name: inv.name,
       code: inv.code,
       subname: inv.subname,

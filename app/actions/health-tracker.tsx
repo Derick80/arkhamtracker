@@ -24,13 +24,13 @@ export default function HealthTracker({
   const canIncrease = display < max;
 
   const bump = (delta: number) => {
-    const fd = new FormData();
-    fd.set("gameId", gameId);
-    fd.set("investigatorId", investigatorId);
-    fd.set("field", "currentHealth");
-    fd.set("delta", String(delta));
+    const formData = new FormData();
+    formData.set("gameId", gameId);
+    formData.set("investigatorId", investigatorId);
+    formData.set("field", "currentHealth");
+    formData.set("delta", String(delta));
     startTransition(async () => {
-      await updateStat(fd);
+      await updateStat(formData);
     });
   };
 
@@ -48,12 +48,11 @@ export default function HealthTracker({
         <span className="min-w-[3rem] text-center tabular-nums">
           {display} / {max}
         </span>
-        {canIncrease ? (
-          <Button  variant="outline" disabled={pending} onClick={() => bump(1)}>
-            +
-          </Button>
-        ) : null}
-       
+
+        <Button  variant="outline" disabled={!  canIncrease} onClick={() => bump(1)}>
+          +
+        </Button>
+
       </div>
     </div>
   );

@@ -119,6 +119,7 @@ model AllInvestigators {
   code      String @unique
   name      String
   subname   String
+  faction_name String?
   health    Int
   sanity    Int
   skill_willpower Int
@@ -136,6 +137,7 @@ model Investigator {
   code      String  
   name      String
   subname   String
+  faction_name String
   health    Int
   sanity    Int
   skill_willpower Int

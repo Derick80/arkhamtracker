@@ -24,6 +24,13 @@ const [state, action, isPending]= useActionState(createArkhamGame,null)
             required
             placeholder="Enter a name for your game"
             />
+            <Label htmlFor='scenario'>Scenario</Label>
+            <Input 
+            name='scenario'
+            type="text"
+            required
+            placeholder="Enter the scenario name"
+            />
             <Button 
             type='submit'
             disabled={isPending}

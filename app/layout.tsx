@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import NavigationBar from "@/components/nav-bar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +34,11 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
-        ><main className="font-sans flex flex-col items-center justify-items-center min-h-screen p-8 pb-20 gap-4 sm:p-20">{children}</main></ThemeProvider>
+        ><main className="font-sans flex flex-col items-center justify-items-center min-h-screen p-8 pb-20 gap-4 sm:p-20"
+        
+        >
+          <NavigationBar />
+          {children}</main></ThemeProvider>
       </body>
     </html>
   );

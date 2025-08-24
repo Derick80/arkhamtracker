@@ -15,7 +15,8 @@ async function main() {
   const data = await response.json() as ArkhamInvestigatorCard[];
 
   const investigators = data.filter((card) => card.type_code === "investigator") as SimpleInvestigator[];
-
+  console.log(`Seeding ${investigators.length} investigators...`);
+  console.log(investigators.map((card) => card.faction_name));
   await prisma.allInvestigators.createMany({
     data: investigators.map((card) => ({
       code: card.code,
@@ -23,6 +24,7 @@ async function main() {
       subname: card.subname,
       health: card.health,
       sanity: card.sanity,
+      faction_name: card.faction_name,
       skill_willpower: card.skill_willpower,
       skill_intellect: card.skill_intellect,
       skill_combat: card.skill_combat,

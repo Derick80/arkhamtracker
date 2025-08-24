@@ -1,9 +1,7 @@
 export interface ArkhamInvestigatorCard {
-  pack_code: string | undefined;
   pack_name: string;
   type_code: "investigator";
   type_name: string;
-  faction_code: string;
   faction_name: string;
   position: number;
   exceptional: boolean;

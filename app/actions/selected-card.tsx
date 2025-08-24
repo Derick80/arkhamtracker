@@ -11,6 +11,8 @@ import ResourcesTracker from "./resources-tracker";
 import SanityTracker from "./sanity-tracker";
 import Image from "next/image";
 import { useActionState } from "react";
+import { XIcon } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 type CardInv = {
   investigatorId: string;
@@ -19,7 +21,6 @@ type CardInv = {
   subname?: string | null;
   // faction may not be present in DB copy; keep optional for now
   factionCode?: string;
-  factionName?: string;
   health: number;
   sanity: number;
   skill_willpower: number;
@@ -41,14 +42,13 @@ const [state,action,isPending]= useActionState(deleteInvestigator,null)
       </div>
     );
   }
-
   return (
     <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {selected.map((inv) => (
-        <li key={inv.code} className="relative rounded-2xl border overflow-hidden bg-primary-foreground dark:bg-neutral-950">
+        <li key={inv.code} className="relative rounded-2xl border overflow-hidden bg-card text-card-foreground">
             
           {/* Faction color bar */}
-          <div className={`h-1 w-full ${factionBar(inv.factionCode ?? "")}`} />
+          <div className={`h-2 w-full ${factionBar(inv.factionCode || "")}`} />
 
           <div className="p-4">
             {/* Header */}
@@ -56,7 +56,7 @@ const [state,action,isPending]= useActionState(deleteInvestigator,null)
               <div className="min-w-0">
                 <h3 className="truncate text-lg font-semibold">{inv.name}</h3>
                 {inv.subname ? (
-                  <p className="truncate text-sm italic text-neutral-500 dark:text-neutral-400">{inv.subname}</p>
+                  <p className="truncate text-sm italic text-muted-foreground">{inv.subname}</p>
                 ) : null}
               </div>
           
@@ -86,14 +86,15 @@ const [state,action,isPending]= useActionState(deleteInvestigator,null)
                   title="Remove from game"
                   disabled={isPending}
                 >
-                  <span className="text-lg leading-none">&times;</span>
+                  <span className="text-lg leading-none"><XIcon/></span>
                 </Button>
               </form>
             {/* Health / Sanity */}
             <div className="mt-3 flex items-center gap-3 text-sm">
-              {inv.factionName ? <Badge label={inv.factionName} /> : null}
+            
               <div className="ml-auto flex items-center gap-3">
-                <div className="flex items-center gap-1 tabular-nums">
+                <div className="flex items-center justify-gap-1 tabular-nums">
+                  
                   <Image src="/assets/images/Health.webp" alt="Health" width={16} height={16} />
                   <span>{inv.health}</span>
                 </div>
@@ -131,6 +132,9 @@ const [state,action,isPending]= useActionState(deleteInvestigator,null)
                 current={inv.currentSanity}
               />
             </div>
+            <Separator
+            className="mt-2 ml-auto"
+            />
             {/* Resources tracker */}
             <div className="mt-3">
               <ResourcesTracker
@@ -146,7 +150,7 @@ const [state,action,isPending]= useActionState(deleteInvestigator,null)
               <div className="mb-1 flex items-center justify-between text-sm p-2">
                 <span>Actions</span>
                 {typeof inv.actions === "number" ? (
-                  <span className="tabular-nums text-neutral-500">
+                  <span className="tabular-nums text-muted-foreground">
                     Remaining: {4 - Math.min(4, inv.actions)}
                   </span>
                 ) : null}
@@ -162,10 +166,10 @@ const [state,action,isPending]= useActionState(deleteInvestigator,null)
 
 function SkillTile({ icon, abbr, title, value }: { icon: string; abbr: string; title: string; value: number }) {
   return (
-    <div className="rounded-xl border p-2 text-center">
+    <div className="rounded-xl border p-1 text-center">
       <div className="flex items-center justify-center gap-1">
         <Image src={icon} alt={`${title} icon`} width={18} height={18} />
-        <div className="text-[10px] uppercase tracking-wide text-neutral-500">{abbr}</div>
+        <div className="text-[10px] uppercase tracking-wide text-primary">{abbr}</div>
       </div>
       <div className="mt-1 text-xl font-semibold tabular-nums" aria-label={`${title}: ${value}`}>{value}</div>
     </div>
@@ -174,14 +178,15 @@ function SkillTile({ icon, abbr, title, value }: { icon: string; abbr: string; t
 
 function Badge({ label }: { label: string }) {
   return (
-    <span className="rounded-full border px-2 py-0.5 text-xs text-neutral-700 dark:text-neutral-200">
+    <span className="rounded-full border px-2 py-0.5 text-xs text-primary">
       {label}
     </span>
   );
 }
 
-function factionBar(code: string): string {
-  switch (code?.toLowerCase()) {
+function factionBar(faction_name: string): string {
+  console.log(faction_name,"<faction name in factionBar>")
+  switch (faction_name?.toLowerCase()) {
     case "guardian":
       return "bg-gradient-to-r from-blue-600 to-blue-400";
     case "seeker":

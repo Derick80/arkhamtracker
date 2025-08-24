@@ -48,11 +48,11 @@ export default function SanityTracker({
         <span className="min-w-[3rem] text-center tabular-nums">
           {display} / {max}
         </span>
-        {canIncrease ? (
-          <Button  variant="outline" disabled={ canIncrease} onClick={() => bump(1)}>
+       
+          <Button  variant="outline" disabled={ !canIncrease} onClick={() => bump(1)}>
             +
           </Button>
-        ) : null}
+
        
       </div>
     </div>
