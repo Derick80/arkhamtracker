@@ -243,7 +243,10 @@ export const getGameById =async (gameId:string)=>{
       id: gameId,
     },
     include: {
-  investigators: true, // includes faction_name field on Investigator model
+      // Enforce stable ordering so UI card positions don't swap after updates
+      investigators: {
+        orderBy: { createdAt: 'asc' },
+      }, // includes faction_name field on Investigator model
     },
   });
   if (!game) {

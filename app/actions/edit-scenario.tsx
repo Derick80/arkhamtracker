@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { updateScenario } from "./arkham-actions";
+import { EditIcon } from "lucide-react";
 
 type Props = {
   gameId: string;
@@ -28,12 +29,12 @@ export default function EditableScenario({ gameId, initialValue }: Props) {
   }, [editing]);
 
   const save = () => {
-    const fd = new FormData();
-    fd.set("gameId", gameId);
-    fd.set("intent", "save");
-    fd.set("scenario", value);
+    const formData = new FormData();
+    formData.set("gameId", gameId);
+    formData.set("intent", "save");
+    formData.set("scenario", value);
     startTransition(async () => {
-      await updateScenario(null,fd);
+      await updateScenario(null,formData);
       setEditing(false);
     });
   };
@@ -77,7 +78,7 @@ export default function EditableScenario({ gameId, initialValue }: Props) {
           onClick={() => setEditing(true)}
           className="shrink-0"
         >
-          Edit
+        <EditIcon />
         </Button>
       </div>
     );

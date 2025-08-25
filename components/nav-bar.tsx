@@ -1,6 +1,8 @@
 import { auth } from "@/auth";
 import { ContactIcon, HomeIcon, InfoIcon } from "lucide-react";
 import Link from "next/link";
+import ModeToggle from "./mode-toggle";
+import { Separator } from "./ui/separator";
 
 
 const NavigationBar = async () => {
@@ -10,8 +12,12 @@ const userId = session?.user?.id
 
     return(
         <nav 
-        className="flex flex-row items-center justify-between p-4 border-b">
-            {navLinks.map((link)=> (
+        className="flex flex-row items-center justify-between w-full p-4 border-2">
+          
+               <div
+               className="border-2"
+               >
+                 {navLinks.map((link)=> (
                 <Link
                 key={link.label}
                 href={link.href}
@@ -22,13 +28,24 @@ const userId = session?.user?.id
                 </Link>
             )
             )}
-            {
-                userId && (
+               </div>
+            
+           <div 
+           className="flex flex-row justify-around border-2 items-center gap-4"
+           >
+            <ModeToggle />
+             {
+                userId ? (
                     <p>
-                        welcome, user {userId}
+                        welcome, user 
+                    </p>
+                ):(
+                    <p>
+                        Please log in
                     </p>
                 )
             }
+           </div>
         </nav>
     )
 }
@@ -41,10 +58,5 @@ const navLinks = [
     { label: "Arkham games", href: "/" ,
         icon: <HomeIcon />
     },
-    { label: "About", href: "/about" ,
-        icon: <InfoIcon />
-    },
-    { label: "Contact", href: "/contact" ,
-        icon: <ContactIcon />
-        },
+   
 ];

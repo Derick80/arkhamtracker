@@ -46,7 +46,7 @@ export default function ActionPips({
     });
   };
   return (
-    <div className="flex items-center justify-between p-2">
+    <div className="flex items-center justify-between p-1 pt-0">
       <div className="flex items-center gap-2">
         {[0, 1, 2, 3].map((i) => {
           const checked = i < spent;
