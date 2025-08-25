@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { getEnemiesState, toggleEnemies, resetEnemies } from "./arkham-actions";
+import { getEnemiesState, toggleEnemies, resetEnemies } from "../../app/actions/arkham-actions";
 
 type EnemiesState = {
   enemiesHunterMove: boolean;

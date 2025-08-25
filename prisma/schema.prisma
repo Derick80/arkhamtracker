@@ -95,6 +95,8 @@ model Game {
   userId  String
   // scenario tracking
   scenario String?
+  // note tracking
+  notes String?
   // Mythos phase tracking
   mythosPlaceDoom Boolean @default(false)
   mythosDrawP1    Boolean @default(false)

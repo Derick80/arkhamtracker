@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { resetAllTracks } from "./arkham-actions";
+import { resetAllTracks } from "../../app/actions/arkham-actions";
 
 export default function ResetAllButton({ gameId }: { gameId: string }) {
   const [pending, startTransition] = useTransition();

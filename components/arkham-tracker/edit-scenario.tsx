@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { updateScenario } from "./arkham-actions";
+import { updateScenario } from "../../app/actions/arkham-actions";
 import { EditIcon } from "lucide-react";
 
 type Props = {
@@ -66,7 +66,7 @@ export default function EditableScenario({ gameId, initialValue }: Props) {
     return (
       <div className="flex items-center gap-3">
         <div className="min-w-0">
-          <span className="block text-xs text-muted-foreground">Scenario</span>
+          <span className="block text-xs text-muted-foreground">Current Scenario</span>
           <span className="block truncate">
             {value ? (
               value

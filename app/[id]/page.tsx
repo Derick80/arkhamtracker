@@ -1,11 +1,12 @@
 import { getDBInvestigators, getGameById } from "../actions/arkham-actions";
-import InvestigatorCardGrid from "../actions/selected-card";
-import MythosTracker from "../actions/mythos-tracker";
-import EnemiesTracker from "../actions/enemies-tracker";
-import UpkeepTracker from "../actions/upkeep-tracker";
-import ResetAllButton from "../actions/reset-all-button";
-import InvestigatorSelect from "../actions/select-investigator";
-import EditableScenario from "../actions/edit-scenario";
+import InvestigatorCardGrid from "../../components/arkham-tracker/selected-card";
+import MythosTracker from "../../components/arkham-tracker/mythos-tracker";
+import EnemiesTracker from "../../components/arkham-tracker/enemies-tracker";
+import UpkeepTracker from "../../components/arkham-tracker/upkeep-tracker";
+import ResetAllButton from "../../components/arkham-tracker/reset-all-button";
+import InvestigatorSelect from "../../components/arkham-tracker/select-investigator";
+import EditableScenario from "../../components/arkham-tracker/edit-scenario";
+import EditableNotes from "@/components/arkham-tracker/notes";
 
 export default async function Page(props: {
   params: Promise<{
@@ -44,6 +45,10 @@ export default async function Page(props: {
         <EditableScenario
           gameId={id}
           initialValue={game.scenario || "No scenario provided"}
+        />
+        <EditableNotes
+          gameId={id}
+          initialValue={game.notes || "No notes provided"}
         />
       </div>
     </article>

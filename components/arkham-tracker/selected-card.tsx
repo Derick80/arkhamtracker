@@ -4,7 +4,7 @@
 
 import { Button } from "@/components/ui/button";
 import ActionPips from "./action-pips";
-import { deleteInvestigator } from "./arkham-actions";
+import { deleteInvestigator } from "../../app/actions/arkham-actions";
 import HealthTracker from "./health-tracker";
 import ResourcesTracker from "./resources-tracker";
 import SanityTracker from "./sanity-tracker";

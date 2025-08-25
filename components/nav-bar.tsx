@@ -1,16 +1,17 @@
 import { auth } from "@/auth";
-import { ContactIcon, HomeIcon, InfoIcon } from "lucide-react";
+import { HomeIcon } from "lucide-react";
 import Link from "next/link";
 import ModeToggle from "./mode-toggle";
-import { Separator } from "./ui/separator";
+import SignIn from "./sign-in";
+import { SignOut } from "./sign-out";
 
 const NavigationBar = async () => {
   const session = await auth();
   const userId = session?.user?.id;
 
   return (
-    <nav className="flex flex-row items-center justify-between w-full p-4 border-2">
-      <div className="border-2">
+    <nav className="flex flex-row items-center justify-between w-full p-4 ">
+      <div className="flex flex-row items-center space-x-4">
         {navLinks.map((link) => (
           <Link
             key={link.label}
@@ -22,10 +23,12 @@ const NavigationBar = async () => {
           </Link>
         ))}
       </div>
-
-      <div className="flex flex-row justify-around border-2 items-center gap-4">
+{/* come back to this part and create a dropdown menu or something similar  */}
+      <div className="flex flex-row justify-around  items-center gap-4">
         <ModeToggle />
-        {userId ? <p>welcome, user</p> : <p>Please log in</p>}
+        {userId ? <><p>welcome, user</p><SignOut /></>
+        : <><p>Please log in</p><SignIn /></>}
+        
       </div>
     </nav>
   );
@@ -33,4 +36,4 @@ const NavigationBar = async () => {
 
 export default NavigationBar;
 
-const navLinks = [{ label: "Arkham games", href: "/", icon: <HomeIcon /> }];
+const navLinks = [{ label: "Arkham Tracker", href: "/", icon: <HomeIcon /> }];

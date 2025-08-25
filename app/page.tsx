@@ -1,9 +1,9 @@
 import { auth } from "@/auth";
-import NewGameForm from "./actions/new-game";
+import NewGameForm from "../components/arkham-tracker/new-game";
 import { getArkhamGames } from "./actions/arkham-actions";
 import Link from "next/link";
 import ModeToggle from "@/components/mode-toggle";
-import DeleteGameButton from "./actions/delete-arkham-game";
+import DeleteGameButton from "../components/arkham-tracker/delete-arkham-game";
 import { Separator } from "@/components/ui/separator";
 import {
   Card,

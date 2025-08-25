@@ -247,6 +247,7 @@ export const getGameById = async (gameId: string) => {
     id: game.id,
     name: game.name,
     scenario: game.scenario,
+    notes: game.notes,
     investigators: (game.investigators as InvestigatorRecord[]).map((inv) => ({
       investigatorId: inv.id,
       // Normalize naming for client components expecting factionName / factionCode
@@ -681,6 +682,35 @@ export const updateScenario = async (
     },
     data: {
       scenario,
+    },
+  });
+  revalidatePath(`/${gameId}`);
+};
+
+
+ const updateNotesSchema = z.object({
+  gameId: z.string().min(1, "Game ID is required"),
+  notes: z.string().min(1, "Notes are required"),
+});
+
+export const updateNotes = async (
+  formData: FormData,
+  prevState: unknown
+) => {
+  const validatedData = updateNotesSchema.safeParse({
+    gameId: formData.get("gameId"),
+    notes: formData.get("notes"),
+  });
+  if (!validatedData.success) {
+    return { error: validatedData.error };
+  }
+  const { gameId, notes } = validatedData.data;
+  await prisma.game.update({
+    where: {
+      id: gameId,
+    },
+    data: {
+      notes,
     },
   });
   revalidatePath(`/${gameId}`);

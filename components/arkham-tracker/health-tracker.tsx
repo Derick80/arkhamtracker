@@ -3,7 +3,7 @@
 import { useMemo, useTransition } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { updateStat } from "./arkham-actions";
+import { updateStat } from "../../app/actions/arkham-actions";
 
 export default function HealthTracker({
   gameId,

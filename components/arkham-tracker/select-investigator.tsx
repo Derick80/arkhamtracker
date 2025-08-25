@@ -7,7 +7,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { addInvestigator, SimpleInvestigator } from "./arkham-actions";
+import { addInvestigator, SimpleInvestigator } from "../../app/actions/arkham-actions";
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import React from "react";

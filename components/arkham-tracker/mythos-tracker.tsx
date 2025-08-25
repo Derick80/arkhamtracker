@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { toggleMythos, resetMythos, getMythosState } from "./arkham-actions";
+import { toggleMythos, resetMythos, getMythosState } from "../../app/actions/arkham-actions";
 
 type MythosState = {
   mythosPlaceDoom: boolean;

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { getUpkeepState, toggleUpkeep, resetUpkeep } from "./arkham-actions";
+import { getUpkeepState, toggleUpkeep, resetUpkeep } from "../../app/actions/arkham-actions";
 
 type UpkeepState = {
   upkeepUnexhaust: boolean;

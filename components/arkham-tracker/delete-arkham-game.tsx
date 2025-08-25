@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { deleteArkhamGame } from "./arkham-actions";
+import { deleteArkhamGame } from "../../app/actions/arkham-actions";
 import { useActionState } from "react";
 import { XIcon } from "lucide-react";
 

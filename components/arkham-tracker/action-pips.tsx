@@ -3,7 +3,7 @@
 
 import React, { useEffect, useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { toggleAction, resetInvestigatorActions } from "./arkham-actions";
+import { toggleAction, resetInvestigatorActions } from "../../app/actions/arkham-actions";
 import { Checkbox } from "@/components/ui/checkbox";
 
 export default function ActionPips({
