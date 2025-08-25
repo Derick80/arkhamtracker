@@ -18,9 +18,7 @@ export default async function Home() {
   console.log("Session:", session);
   const games = await getArkhamGames();
   return (
-    <div
-    className="flex flex-col w-full"
-    >
+    <div className="flex flex-col w-full">
       <ModeToggle />
       <h1 className="text-3xl font-bold">Arkham Tracker</h1>
       <p className="text-lg">Welcome {session?.user?.name || "Guest"} </p>

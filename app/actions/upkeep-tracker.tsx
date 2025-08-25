@@ -28,13 +28,14 @@ export default function UpkeepTracker({ gameId }: { gameId: string }) {
       const s = await getUpkeepState(gameId);
       if (mounted && s) setState(s);
     })();
-    const handler = () => setState({
-      upkeepUnexhaust: false,
-      upkeepDrawP1: false,
-      upkeepDrawP2: false,
-      upkeepGainRes: false,
-      upkeepCheckHand: false,
-    });
+    const handler = () =>
+      setState({
+        upkeepUnexhaust: false,
+        upkeepDrawP1: false,
+        upkeepDrawP2: false,
+        upkeepGainRes: false,
+        upkeepCheckHand: false,
+      });
     window.addEventListener("arkham:reset-all", handler);
     return () => {
       mounted = false;
@@ -77,23 +78,48 @@ export default function UpkeepTracker({ gameId }: { gameId: string }) {
       </div>
       <ul className="space-y-2">
         <li className="flex items-center gap-3">
-          <input type="checkbox" checked={state.upkeepUnexhaust} onChange={() => toggle("upkeepUnexhaust")} disabled={pending} />
+          <input
+            type="checkbox"
+            checked={state.upkeepUnexhaust}
+            onChange={() => toggle("upkeepUnexhaust")}
+            disabled={pending}
+          />
           <span>1) Unexhaust cards</span>
         </li>
         <li className="flex items-center gap-3">
-          <input type="checkbox" checked={state.upkeepDrawP1} onChange={() => toggle("upkeepDrawP1")} disabled={pending} />
+          <input
+            type="checkbox"
+            checked={state.upkeepDrawP1}
+            onChange={() => toggle("upkeepDrawP1")}
+            disabled={pending}
+          />
           <span>2) Player 1 draws a card</span>
         </li>
         <li className="flex items-center gap-3">
-          <input type="checkbox" checked={state.upkeepDrawP2} onChange={() => toggle("upkeepDrawP2")} disabled={pending} />
+          <input
+            type="checkbox"
+            checked={state.upkeepDrawP2}
+            onChange={() => toggle("upkeepDrawP2")}
+            disabled={pending}
+          />
           <span>3) Player 2 draws a card</span>
         </li>
         <li className="flex items-center gap-3">
-          <input type="checkbox" checked={state.upkeepGainRes} onChange={() => toggle("upkeepGainRes")} disabled={pending} />
+          <input
+            type="checkbox"
+            checked={state.upkeepGainRes}
+            onChange={() => toggle("upkeepGainRes")}
+            disabled={pending}
+          />
           <span>4) Each investigator gains 1 resource</span>
         </li>
         <li className="flex items-center gap-3">
-          <input type="checkbox" checked={state.upkeepCheckHand} onChange={() => toggle("upkeepCheckHand")} disabled={pending} />
+          <input
+            type="checkbox"
+            checked={state.upkeepCheckHand}
+            onChange={() => toggle("upkeepCheckHand")}
+            disabled={pending}
+          />
           <span>5) Check hand size (8)</span>
         </li>
       </ul>

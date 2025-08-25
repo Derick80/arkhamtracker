@@ -34,26 +34,32 @@ export default function SanityTracker({
     });
   };
 
-
   return (
     <div className="flex items-center gap-2">
       <span className="text-sm text-neutral-600 dark:text-neutral-300 flex items-center gap-1">
-        <Image src="/assets/images/Sanity.webp" alt="Sanity" width={16} height={16} />
+        <Image
+          src="/assets/images/Sanity.webp"
+          alt="Sanity"
+          width={16}
+          height={16}
+        />
         Sanity
       </span>
       <div className="ml-auto flex items-center gap-2">
-        <Button  variant="outline" disabled={pending} onClick={() => bump(-1)}>
+        <Button variant="outline" disabled={pending} onClick={() => bump(-1)}>
           -
         </Button>
         <span className="min-w-[3rem] text-center tabular-nums">
           {display} / {max}
         </span>
-       
-          <Button  variant="outline" disabled={ !canIncrease} onClick={() => bump(1)}>
-            +
-          </Button>
 
-       
+        <Button
+          variant="outline"
+          disabled={!canIncrease}
+          onClick={() => bump(1)}
+        >
+          +
+        </Button>
       </div>
     </div>
   );

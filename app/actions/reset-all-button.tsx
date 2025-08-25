@@ -20,7 +20,12 @@ export default function ResetAllButton({ gameId }: { gameId: string }) {
   };
 
   return (
-    <Button variant="destructive" size="sm" onClick={onClick} disabled={pending}>
+    <Button
+      variant="destructive"
+      size="sm"
+      onClick={onClick}
+      disabled={pending}
+    >
       Reset All Tracks
     </Button>
   );

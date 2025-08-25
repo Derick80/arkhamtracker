@@ -34,7 +34,7 @@ export default function EditableScenario({ gameId, initialValue }: Props) {
     formData.set("intent", "save");
     formData.set("scenario", value);
     startTransition(async () => {
-      await updateScenario(null,formData);
+      await updateScenario(null, formData);
       setEditing(false);
     });
   };
@@ -44,7 +44,7 @@ export default function EditableScenario({ gameId, initialValue }: Props) {
     fd.set("gameId", gameId);
     fd.set("intent", "clear");
     startTransition(async () => {
-      await updateScenario(null,fd);
+      await updateScenario(null, fd);
       setValue("");
       setEditing(false);
     });
@@ -68,7 +68,11 @@ export default function EditableScenario({ gameId, initialValue }: Props) {
         <div className="min-w-0">
           <span className="block text-xs text-muted-foreground">Scenario</span>
           <span className="block truncate">
-            {value ? value : <span className="italic text-muted-foreground">No scenario</span>}
+            {value ? (
+              value
+            ) : (
+              <span className="italic text-muted-foreground">No scenario</span>
+            )}
           </span>
         </div>
         <Button
@@ -78,7 +82,7 @@ export default function EditableScenario({ gameId, initialValue }: Props) {
           onClick={() => setEditing(true)}
           className="shrink-0"
         >
-        <EditIcon />
+          <EditIcon />
         </Button>
       </div>
     );
@@ -87,7 +91,9 @@ export default function EditableScenario({ gameId, initialValue }: Props) {
   return (
     <div className="flex w-full max-w-md items-end gap-2">
       <div className="flex-1">
-        <span className="block text-xs text-muted-foreground mb-1">Scenario</span>
+        <span className="block text-xs text-muted-foreground mb-1">
+          Scenario
+        </span>
         <Input
           ref={inputRef}
           value={value}

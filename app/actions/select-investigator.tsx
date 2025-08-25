@@ -1,28 +1,33 @@
-'use client'
+"use client";
 
-import { Select,
-    SelectTrigger,
-    SelectValue,
-    SelectContent,
-    SelectItem
- } from "@/components/ui/select"
-import { addInvestigator, SimpleInvestigator } from "./arkham-actions"
-import { useActionState, useState } from "react"
-import { Button } from "@/components/ui/button"
-import React from "react"
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { addInvestigator, SimpleInvestigator } from "./arkham-actions";
+import { useActionState, useState } from "react";
+import { Button } from "@/components/ui/button";
+import React from "react";
 
-type InvestigatorSelectProps ={
+type InvestigatorSelectProps = {
   gameId: string;
   investigators: SimpleInvestigator[]; // full list
   currentSelected?: { code: string }[]; // currently in game
-}
+};
 
-const InvestigatorSelect = ({ investigators, gameId, currentSelected = [] }: InvestigatorSelectProps) => {
+const InvestigatorSelect = ({
+  investigators,
+  gameId,
+  currentSelected = [],
+}: InvestigatorSelectProps) => {
   const [open, setOpen] = useState(false);
   const [state, action, isPending] = useActionState(addInvestigator, null);
 
-  const selectedCodes = new Set(currentSelected.map(c => c.code));
-  const available = investigators.filter(inv => !selectedCodes.has(inv.code));
+  const selectedCodes = new Set(currentSelected.map((c) => c.code));
+  const available = investigators.filter((inv) => !selectedCodes.has(inv.code));
   const maxReached = currentSelected.length >= 2;
 
   if (maxReached) {
@@ -50,7 +55,7 @@ const InvestigatorSelect = ({ investigators, gameId, currentSelected = [] }: Inv
       <div className="flex items-center justify-between">
         <Button
           type="button"
-          onClick={() => setOpen(v => !v)}
+          onClick={() => setOpen((v) => !v)}
           className="text-sm"
           disabled={isPending}
         >
@@ -58,17 +63,14 @@ const InvestigatorSelect = ({ investigators, gameId, currentSelected = [] }: Inv
         </Button>
       </div>
       {open && (
-        <form
-          action={action}
-          className="mt-3 flex flex-col gap-3 sm:flex-row"
-        >
+        <form action={action} className="mt-3 flex flex-col gap-3 sm:flex-row">
           <input type="hidden" name="gameId" value={gameId} />
           <Select name="investigatorCode">
             <SelectTrigger>
               <SelectValue placeholder="Select an investigator" />
             </SelectTrigger>
             <SelectContent>
-              {available.map(inv => (
+              {available.map((inv) => (
                 <SelectItem key={inv.code} value={inv.code}>
                   {inv.name}
                 </SelectItem>
@@ -87,4 +89,4 @@ const InvestigatorSelect = ({ investigators, gameId, currentSelected = [] }: Inv
   );
 };
 
-export default InvestigatorSelect
+export default InvestigatorSelect;

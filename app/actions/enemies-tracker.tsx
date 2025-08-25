@@ -22,7 +22,8 @@ export default function EnemiesTracker({ gameId }: { gameId: string }) {
       const s = await getEnemiesState(gameId);
       if (mounted && s) setState(s);
     })();
-    const handler = () => setState({ enemiesHunterMove: false, enemiesAttack: false });
+    const handler = () =>
+      setState({ enemiesHunterMove: false, enemiesAttack: false });
     window.addEventListener("arkham:reset-all", handler);
     return () => {
       mounted = false;

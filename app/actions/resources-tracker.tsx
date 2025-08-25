@@ -34,15 +34,19 @@ export default function ResourcesTracker({
   return (
     <div className="flex items-center justify-around gap-2">
       <span className="text-sm text-neutral-600 dark:text-neutral-300 flex items-center gap-1">
-        <Image src="/assets/images/Resource.webp" alt="Resources" width={16} height={16} />
+        <Image
+          src="/assets/images/Resource.webp"
+          alt="Resources"
+          width={16}
+          height={16}
+        />
         Resources
       </span>
       <div className="ml-auto flex items-center gap-6">
         <Button variant="outline" disabled={pending} onClick={() => bump(-1)}>
           -
         </Button>
-        <span className="flex min-w-[3rem]tabular-nums">{display}
-        </span>
+        <span className="flex min-w-[3rem]tabular-nums">{display}</span>
         <Button variant="outline" disabled={pending} onClick={() => bump(1)}>
           +
         </Button>

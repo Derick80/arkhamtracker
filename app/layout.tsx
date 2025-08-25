@@ -29,16 +29,17 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-         <ThemeProvider
+        <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
-        ><main className="font-sans flex flex-col items-center justify-items-center min-h-screen p-8 pb-20 gap-4 sm:p-20"
-        
         >
-          <NavigationBar />
-          {children}</main></ThemeProvider>
+          <main className="font-sans flex flex-col items-center justify-items-center min-h-screen p-8 pb-20 gap-4 sm:p-20">
+            <NavigationBar />
+            {children}
+          </main>
+        </ThemeProvider>
       </body>
     </html>
   );

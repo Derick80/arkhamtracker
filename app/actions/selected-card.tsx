@@ -1,5 +1,4 @@
-
-'use client'
+"use client";
 // app/games/[gameId]/investigator-cards.tsx
 // Server component (presentational). No client code required.
 
@@ -32,7 +31,13 @@ type InvestigatorCard = {
   actions?: number | null;
 };
 
-export default function InvestigatorCardGrid({ selected, gameId }: { selected: InvestigatorCard[], gameId:string }) {
+export default function InvestigatorCardGrid({
+  selected,
+  gameId,
+}: {
+  selected: InvestigatorCard[];
+  gameId: string;
+}) {
   const [, action, isPending] = useActionState(deleteInvestigator, null);
   if (!selected.length) {
     return (
@@ -57,10 +62,22 @@ export default function InvestigatorCardGrid({ selected, gameId }: { selected: I
 }
 
 type DeleteAction = (formData: FormData) => void | Promise<void>;
-function InvestigatorCardItem({ inv, gameId, action, isPending }: { inv: InvestigatorCard; gameId: string; action: DeleteAction; isPending: boolean }) {
+function InvestigatorCardItem({
+  inv,
+  gameId,
+  action,
+  isPending,
+}: {
+  inv: InvestigatorCard;
+  gameId: string;
+  action: DeleteAction;
+  isPending: boolean;
+}) {
   const [open, setOpen] = useState(false); // start hidden
   return (
-    <li className={`relative rounded-2xl border overflow-hidden bg-card text-card-foreground transition-all duration-300 ${open ? 'p-0' : 'scale-95 opacity-90'}`}>
+    <li
+      className={`relative rounded-2xl border overflow-hidden bg-card text-card-foreground transition-all duration-300 ${open ? "p-0" : "scale-95 opacity-90"}`}
+    >
       {/* Faction color bar */}
       <div className={`h-2 w-full ${factionBar(inv.factionCode || "")}`} />
       <div className="p-4">
@@ -69,18 +86,39 @@ function InvestigatorCardItem({ inv, gameId, action, isPending }: { inv: Investi
           <div className="min-w-0">
             <h3 className="truncate text-lg font-semibold">{inv.name}</h3>
             {inv.subname ? (
-              <p className="truncate text-sm italic text-muted-foreground">{inv.subname}</p>
+              <p className="truncate text-sm italic text-muted-foreground">
+                {inv.subname}
+              </p>
             ) : null}
           </div>
-          
         </div>
- {/* Skills */}
-          <div className="mt-4 grid grid-cols-4 gap-2">
-            <SkillTile icon="/assets/images/Willpower01.webp" abbr="Will" title="Willpower" value={inv.skill_willpower} />
-            <SkillTile icon="/assets/images/Intellect01.webp" abbr="Int" title="Intellect" value={inv.skill_intellect} />
-            <SkillTile icon="/assets/images/Combat01.webp" abbr="Com" title="Combat" value={inv.skill_combat} />
-            <SkillTile icon="/assets/images/Agility01.webp" abbr="Agi" title="Agility" value={inv.skill_agility} />
-          </div>
+        {/* Skills */}
+        <div className="mt-4 grid grid-cols-4 gap-2">
+          <SkillTile
+            icon="/assets/images/Willpower01.webp"
+            abbr="Will"
+            title="Willpower"
+            value={inv.skill_willpower}
+          />
+          <SkillTile
+            icon="/assets/images/Intellect01.webp"
+            abbr="Int"
+            title="Intellect"
+            value={inv.skill_intellect}
+          />
+          <SkillTile
+            icon="/assets/images/Combat01.webp"
+            abbr="Com"
+            title="Combat"
+            value={inv.skill_combat}
+          />
+          <SkillTile
+            icon="/assets/images/Agility01.webp"
+            abbr="Agi"
+            title="Agility"
+            value={inv.skill_agility}
+          />
+        </div>
         {/* Toggle + Remove buttons */}
         <div className="absolute top-4 right-4 flex items-center gap-2">
           <Button
@@ -88,22 +126,29 @@ function InvestigatorCardItem({ inv, gameId, action, isPending }: { inv: Investi
             variant="secondary"
             size="icon"
             className="h-8 w-8"
-            aria-label={open ? `Hide details for ${inv.name}` : `Show details for ${inv.name}`}
-            onClick={() => setOpen(o => !o)}
-          >
-            {open ? <ChevronUpIcon /> : <ChevronDownIcon/>
+            aria-label={
+              open
+                ? `Hide details for ${inv.name}`
+                : `Show details for ${inv.name}`
             }
+            onClick={() => setOpen((o) => !o)}
+          >
+            {open ? <ChevronUpIcon /> : <ChevronDownIcon />}
           </Button>
           <form
             action={action}
-            onSubmit={e => {
+            onSubmit={(e) => {
               if (!window.confirm(`Remove ${inv.name} from game?`)) {
                 e.preventDefault();
               }
             }}
           >
             <input type="hidden" name="gameId" value={gameId} />
-            <input type="hidden" name="investigatorId" value={inv.investigatorId} />
+            <input
+              type="hidden"
+              name="investigatorId"
+              value={inv.investigatorId}
+            />
             <Button
               type="submit"
               variant="destructive"
@@ -113,27 +158,42 @@ function InvestigatorCardItem({ inv, gameId, action, isPending }: { inv: Investi
               title="Remove from game"
               disabled={isPending}
             >
-              <span className="text-lg leading-none"><XIcon /></span>
+              <span className="text-lg leading-none">
+                <XIcon />
+              </span>
             </Button>
           </form>
         </div>
 
         {/* Collapsible content */}
-        <div className={`transition-all duration-300 ${open ? 'max-h-[1200px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`} aria-hidden={!open}>
+        <div
+          className={`transition-all duration-300 ${open ? "max-h-[1200px] opacity-100" : "max-h-0 opacity-0 overflow-hidden"}`}
+          aria-hidden={!open}
+        >
           {/* Health / Sanity summary */}
           <div className="mt-3 flex items-center gap-3 text-sm">
             <div className="ml-auto flex items-center gap-3">
               <div className="flex items-center gap-1 tabular-nums">
-                <Image src="/assets/images/Health.webp" alt="Health" width={16} height={16} />
+                <Image
+                  src="/assets/images/Health.webp"
+                  alt="Health"
+                  width={16}
+                  height={16}
+                />
                 <span>{inv.health}</span>
               </div>
               <div className="flex items-center gap-1 tabular-nums">
-                <Image src="/assets/images/Sanity.webp" alt="Sanity" width={16} height={16} />
+                <Image
+                  src="/assets/images/Sanity.webp"
+                  alt="Sanity"
+                  width={16}
+                  height={16}
+                />
                 <span>{inv.sanity}</span>
               </div>
             </div>
           </div>
-         
+
           {/* Health tracker */}
           <div className="mt-3">
             <HealthTracker
@@ -170,26 +230,47 @@ function InvestigatorCardItem({ inv, gameId, action, isPending }: { inv: Investi
       <div className="mt-0">
         <div className="mb-1 flex items-center justify-between text-sm p-2">
           <span>Actions</span>
-          {typeof inv.actions === 'number' ? (
+          {typeof inv.actions === "number" ? (
             <span className="tabular-nums text-muted-foreground">
               Remaining: {4 - Math.min(4, inv.actions)}
             </span>
           ) : null}
         </div>
-        <ActionPips gameId={gameId} investigatorId={inv.investigatorId} spent={Number(inv.actions ?? 0)} />
+        <ActionPips
+          gameId={gameId}
+          investigatorId={inv.investigatorId}
+          spent={Number(inv.actions ?? 0)}
+        />
       </div>
     </li>
   );
 }
 
-function SkillTile({ icon, abbr, title, value }: { icon: string; abbr: string; title: string; value: number }) {
+function SkillTile({
+  icon,
+  abbr,
+  title,
+  value,
+}: {
+  icon: string;
+  abbr: string;
+  title: string;
+  value: number;
+}) {
   return (
     <div className="rounded-xl border text-center">
       <div className="flex items-center justify-center gap-1">
         <Image src={icon} alt={`${title} icon`} width={18} height={18} />
-        <div className="text-[10px] uppercase tracking-wide text-primary">{abbr}</div>
+        <div className="text-[10px] uppercase tracking-wide text-primary">
+          {abbr}
+        </div>
       </div>
-      <div className="mt-0 text-xl font-semibold tabular-nums" aria-label={`${title}: ${value}`}>{value}</div>
+      <div
+        className="mt-0 text-xl font-semibold tabular-nums"
+        aria-label={`${title}: ${value}`}
+      >
+        {value}
+      </div>
     </div>
   );
 }
@@ -197,7 +278,7 @@ function SkillTile({ icon, abbr, title, value }: { icon: string; abbr: string; t
 // Removed unused Badge component
 
 function factionBar(faction_name: string): string {
-  console.log(faction_name,"<faction name in factionBar>")
+  console.log(faction_name, "<faction name in factionBar>");
   switch (faction_name?.toLowerCase()) {
     case "guardian":
       return "bg-gradient-to-r from-blue-600 to-blue-400";

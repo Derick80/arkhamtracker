@@ -27,7 +27,13 @@ export default function MythosTracker({ gameId }: { gameId: string }) {
       const s = await getMythosState(gameId);
       if (mounted && s) setState(s);
     })();
-    const handler = () => setState({ mythosPlaceDoom: false, mythosDrawP1: false, mythosDrawP2: false, mythosEnd: false });
+    const handler = () =>
+      setState({
+        mythosPlaceDoom: false,
+        mythosDrawP1: false,
+        mythosDrawP2: false,
+        mythosEnd: false,
+      });
     window.addEventListener("arkham:reset-all", handler);
     return () => {
       mounted = false;
@@ -51,7 +57,12 @@ export default function MythosTracker({ gameId }: { gameId: string }) {
     fd.set("gameId", gameId);
     startTransition(async () => {
       await resetMythos(fd);
-      setState({ mythosPlaceDoom: false, mythosDrawP1: false, mythosDrawP2: false, mythosEnd: false });
+      setState({
+        mythosPlaceDoom: false,
+        mythosDrawP1: false,
+        mythosDrawP2: false,
+        mythosEnd: false,
+      });
     });
   };
 

@@ -5,16 +5,18 @@ import { prisma } from "@/lib/prisma";
 async function main() {
   console.log("Deleting all records...");
 
-  await prisma.$transaction([
-    prisma.allInvestigators.deleteMany(),
-  ]);
+  await prisma.$transaction([prisma.allInvestigators.deleteMany()]);
 
   console.log("All tables cleared!");
-// call the arkhamdb api and fetch all investigators then create many
-  const response = await fetch("https://arkhamdb.com/api/public/cards/?_format=json");
-  const data = await response.json() as ArkhamInvestigatorCard[];
+  // call the arkhamdb api and fetch all investigators then create many
+  const response = await fetch(
+    "https://arkhamdb.com/api/public/cards/?_format=json",
+  );
+  const data = (await response.json()) as ArkhamInvestigatorCard[];
 
-  const investigators = data.filter((card) => card.type_code === "investigator") as SimpleInvestigator[];
+  const investigators = data.filter(
+    (card) => card.type_code === "investigator",
+  ) as SimpleInvestigator[];
   console.log(`Seeding ${investigators.length} investigators...`);
   console.log(investigators.map((card) => card.faction_name));
   await prisma.allInvestigators.createMany({
