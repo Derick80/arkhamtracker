@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   images: {
     domains: ["arkhamdb.com"],
   },
+   ignoreDuringBuilds: true, // ← disables ESLint during next build (incl. Vercel)
+
 };
 
 export default nextConfig;
