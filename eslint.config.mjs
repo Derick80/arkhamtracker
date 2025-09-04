@@ -15,6 +15,7 @@ const eslintConfig = [
     files: ["**/*.{ts,tsx}"],
     rules: {
       "@typescript-eslint/no-require-imports": "off",
+      "@typescript-eslint/no-this-alias": "off",
     },
   },
 ];
