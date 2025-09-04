@@ -1,7 +1,6 @@
 // components/ahlcg/InvestigatorCards.tsx
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import Image from "next/image";
@@ -176,7 +175,7 @@ function HealthTracker({
     <div className="flex items-center justify-between rounded-lg border p-2">
       <div className="flex items-center space-x-1">
         <Image
-          src={`/assets/images/${type}.webp`}
+          src={`/assets/images/${type.toLowerCase()}.webp`}
           alt={`${type} icon`}
           width={24}
           height={24}
@@ -358,7 +357,6 @@ console.log(before, after, "<-- split elder sign");
 /** ===== Public component: renders 1–2 cards from a game object ===== */
 export default function InvestigatorCards({
   game,
-  scale = 1,
 }: InvestigatorCardsProps) {
     console.log(game, "<game in InvestigatorCards>");
   return (

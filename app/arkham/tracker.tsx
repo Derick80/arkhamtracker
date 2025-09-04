@@ -13,7 +13,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
 import { SimpleInvestigator } from "../actions/arkham-actions";
 import InvestigatorCard from "./arkham-inv-card";
 
@@ -542,14 +541,6 @@ export default function Tracker({
       };
     }
     updateActive({ ...activeGame, tracker });
-  }
-
-  // Optional: client-side refresh from API if the list may change during session
-  async function refreshInvestigators() {
-    const res = await fetch("/api/investigators", { cache: "no-store" });
-    if (!res.ok) return;
-    const data = (await res.json()) as SimpleInvestigator[];
-    setInvestigators(data);
   }
 
   return (

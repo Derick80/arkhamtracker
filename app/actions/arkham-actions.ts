@@ -1,10 +1,7 @@
 "use server";
 
-import { auth } from "@/auth";
 import { ArkhamInvestigatorCard } from "@/lib/arkham-types";
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
-import z from "zod";
 
 export type SimpleInvestigator = Pick<
   ArkhamInvestigatorCard,
