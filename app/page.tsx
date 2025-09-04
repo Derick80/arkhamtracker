@@ -12,16 +12,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { LoginInfoBox } from "@/components/intro-box";
 
 export default async function Home() {
   const session = await auth();
   console.log("Session:", session);
   const games = await getArkhamGames();
   return (
-    <div className="flex flex-col w-full">
-      <ModeToggle />
-      <h1 className="text-3xl font-bold">Arkham Tracker</h1>
+    <div className="flex flex-col w-full gap-4">
       <p className="text-lg">Welcome {session?.user?.name || "Guest"} </p>
+      <LoginInfoBox
+        isAuthenticated={!!session}
+        userName={session?.user?.name}
+      />
       <Separator />
       <h2 className="text-2xl font-semibold">Your Games</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border w-full">

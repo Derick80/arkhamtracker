@@ -47,7 +47,7 @@ export default function InvestigatorCardGrid({
     );
   }
   return (
-    <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <ul className="grid gap-4 sm:grid-cols-1 lg:grid-cols-2  justify-between">
       {selected.map((inv) => (
         <InvestigatorCardItem
           key={inv.investigatorId}
@@ -62,6 +62,7 @@ export default function InvestigatorCardGrid({
 }
 
 type DeleteAction = (formData: FormData) => void | Promise<void>;
+
 function InvestigatorCardItem({
   inv,
   gameId,
@@ -120,12 +121,11 @@ function InvestigatorCardItem({
           />
         </div>
         {/* Toggle + Remove buttons */}
-        <div className="absolute top-4 right-4 flex items-center gap-2">
+        <div className="absolute top-0 right-1 flex items-center gap-2">
           <Button
             type="button"
-            variant="secondary"
+            variant="ghost"
             size="icon"
-            className="h-8 w-8"
             aria-label={
               open
                 ? `Hide details for ${inv.name}`
@@ -151,15 +151,16 @@ function InvestigatorCardItem({
             />
             <Button
               type="submit"
-              variant="destructive"
+              variant="ghost"
               size="icon"
-              className="h-8 w-8"
               aria-label={`Remove ${inv.name} from game`}
               title="Remove from game"
               disabled={isPending}
             >
-              <span className="text-lg leading-none">
-                <XIcon />
+              <span className="text-lg text-red-500 leading-none">
+                <XIcon 
+                  
+                />
               </span>
             </Button>
           </form>

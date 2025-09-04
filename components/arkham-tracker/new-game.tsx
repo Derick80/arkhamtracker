@@ -11,7 +11,7 @@ const NewGameForm = () => {
 
   return (
     <div>
-      <form action={action} className="flex flex-col gap-4">
+      <form action={action} className="flex flex-col gap-4 max-w-xl">
         <Label htmlFor="Game Name">Game Name</Label>
         <Input
           name="gameName"

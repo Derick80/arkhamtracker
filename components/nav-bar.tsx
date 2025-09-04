@@ -26,9 +26,7 @@ const NavigationBar = async () => {
 {/* come back to this part and create a dropdown menu or something similar  */}
       <div className="flex flex-row justify-around  items-center gap-4">
         <ModeToggle />
-        {userId ? <><p>welcome, user</p><SignOut /></>
-        : <><p>Please log in</p><SignIn /></>}
-        
+      
       </div>
     </nav>
   );
