@@ -1,5 +1,16 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+
+# Welcome to The Arkham Horror LCG Round Tracker
+This was inspired by a paper round tracker found on [BGG](https://boardgamegeek.com/filepage/223617/ahlcg-round-tracker-for-two-handed-solo)
+
+
+### Troubleshooting and Notes
+I had some inital troubles with image names being capitalized or not depending on local vs production environment. 
+git mv -f public/assets/images/Health.webp public/assets/images/_tmp_health.webp
+git mv -f public/assets/images/_tmp_health.webp public/assets/images/health.webp
+
+
 ## Getting Started
 
 First, run the development server:

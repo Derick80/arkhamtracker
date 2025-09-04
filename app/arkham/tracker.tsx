@@ -258,7 +258,9 @@ function GameCreator({
             {nameTaken ? <p className="text-sm text-destructive">Name already exists.</p> : null}
           </div>
 
-          <div className="space-y-2">
+         <div 
+         className="flex flex-row gap-2">
+ <div className="space-y-2">
             <label className="text-sm font-medium">Investigator 1</label>
             <Select value={inv1} onValueChange={setInv1}>
               <SelectTrigger><SelectValue placeholder="Select investigator" /></SelectTrigger>
@@ -269,7 +271,6 @@ function GameCreator({
               </SelectContent>
             </Select>
           </div>
-
           <div className="space-y-2">
             <label className="text-sm font-medium">Investigator 2 (optional)</label>
             <Select value={inv2} onValueChange={setInv2}>
@@ -282,7 +283,7 @@ function GameCreator({
               </SelectContent>
             </Select>
           </div>
-        </div>
+        </div></div>
 
         <Button className="w-full" disabled={!name.trim() || !inv1 || !!nameTaken} onClick={handleCreate}>
           Create Game
