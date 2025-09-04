@@ -19,7 +19,7 @@ export default async function Page(props: {
   }
   const game = await getGameById(id);
   if (!game) return null;
-  console.log(game, "<game data>");
+  // console.log(game, "<game data>");
   const investigators = await getDBInvestigators();
   if (!investigators) return;
   return (

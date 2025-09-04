@@ -53,7 +53,7 @@ export const getAllInvestigators = async (): Promise<SimpleInvestigator[]> => {
       (card, index, self) =>
         index === self.findIndex((c) => c.code === card.code),
     );
-    console.log(filtered_investigatorCards, "filtered_investigatorCards");
+    // console.log(filtered_investigatorCards, "filtered_investigatorCards");
     const simpleInvestigator = filtered_investigatorCards.map((card) => ({
       code: card.code,
       name: card.name,

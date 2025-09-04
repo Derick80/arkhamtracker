@@ -21,10 +21,10 @@ export default async function Home() {
   return (
     <div className="flex flex-col w-full gap-4">
       <p className="text-lg">Welcome {session?.user?.name || "Guest"} </p>
-      <LoginInfoBox
+      {/* <LoginInfoBox
         isAuthenticated={!!session}
         userName={session?.user?.name}
-      />
+      /> */}
       <Separator />
       <h2 className="text-2xl font-semibold">Your Games</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border w-full">
