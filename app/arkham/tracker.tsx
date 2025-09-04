@@ -15,7 +15,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { SimpleInvestigator } from "../actions/arkham-actions";
-import InvestigatorCard from "./acard";
+import InvestigatorCard from "./arkham-inv-card";
 
 
 // ----------------- Types -----------------
@@ -293,20 +293,6 @@ function GameCreator({
   );
 }
 
-// ----------------- InvestigatorSlot -----------------
-function InvestigatorSlot({ title }: { title: string }) {
-  const [notes, setNotes] = useState("");
-  return (
-    <Card>
-      <CardHeader className="py-3"><CardTitle className="text-base">{title}</CardTitle></CardHeader>
-      <CardContent className="space-y-2">
-        <label className="text-sm font-medium">Notes / Status</label>
-        <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Resources, damage, horror..." />
-      </CardContent>
-    </Card>
-  );
-}
-
 
 type InvestigatorCard = {
   investigatorId: string;
@@ -576,9 +562,7 @@ export default function Tracker({
               Delete
             </Button>
           )}
-          <Button variant="secondary" size="sm" onClick={refreshInvestigators}>
-            Refresh Investigators
-          </Button>
+         
         </div>
       </header>
 

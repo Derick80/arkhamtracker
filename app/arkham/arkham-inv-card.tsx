@@ -1,6 +1,8 @@
 // components/ahlcg/InvestigatorCards.tsx
 "use client";
 
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Image from "next/image";
 import * as React from "react";
@@ -85,97 +87,45 @@ function factionTheme(faction: string) {
   return FACTION_THEME[faction] ?? FACTION_THEME["Neutral"];
 }
 
-/** ===== Utility: format rules text (tokens, line breaks) ===== */
-function formatRulesText(text?: string) {
-  if (!text) return null;
 
-  // Token replacements resembling AHLCG style.
-  const replacements: Array<[RegExp, (m: RegExpExecArray, i: number) => React.ReactNode]> = [
-    [/\[reaction\]/gi, () => <Badge key={`b-reaction-${Math.random()}`} label="Reaction" symbol="⟲" />],
-    [/\[fast\]/gi, () => <Badge key={`b-fast-${Math.random()}`} label="Fast" symbol="⚡" />],
-    [/\[action\]/gi, () => <Badge key={`b-action-${Math.random()}`} label="Action" symbol="◆" />],
-    [/\[free\]/gi, () => <Badge key={`b-free-${Math.random()}`} label="Free" symbol="◇" />],
-    [/\[elder_sign\]/gi, () => <Badge key={`b-elder-${Math.random()}`} label="Elder Sign" symbol="✶" />],
-    [/\[skull\]/gi, () => <Badge key={`b-skull-${Math.random()}`} label="Skull" symbol="☠" />],
-    [/\[cultist\]/gi, () => <Badge key={`b-cult-${Math.random()}`} label="Cultist" symbol="✝" />],
-    [/\[tablet\]/gi, () => <Badge key={`b-tab-${Math.random()}`} label="Tablet" symbol="◈" />],
-    [/\[elder_thing\]/gi, () => <Badge key={`b-thing-${Math.random()}`} label="Elder Thing" symbol="❖" />],
-    [/\[auto_fail\]/gi, () => <Badge key={`b-auto-${Math.random()}`} label="Auto-Fail" symbol="✗" />],
-    [/\[wild\]/gi, () => <Badge key={`b-wild-${Math.random()}`} label="Wild" symbol="★" />],
-  ];
-
-  // Split on newlines and then apply token replacements segment-wise.
-  const lines = text.split(/\n+/g);
-  return (
-    <div className="space-y-2 leading-snug">
-      {lines.map((line, idx) => {
-        const parts: Array<React.ReactNode> = [];
-        let cursor = 0;
-
-        // Walk through replacement patterns and rebuild
-        while (cursor < line.length) {
-          let earliest:
-            | null
-            | {
-                match: RegExpExecArray;
-                cb: (m: RegExpExecArray, i: number) => React.ReactNode;
-              } = null;
-
-          for (const [re, cb] of replacements) {
-            re.lastIndex = cursor;
-            const m = re.exec(line);
-            if (m && (!earliest || m.index < earliest.match.index)) {
-              earliest = { match: m, cb };
-            }
-          }
-
-          if (!earliest) {
-            parts.push(line.slice(cursor));
-            break;
-          }
-
-          // push text before token
-          if (earliest.match.index > cursor) {
-            parts.push(line.slice(cursor, earliest.match.index));
-          }
-
-          // push converted token
-          parts.push(earliest.cb(earliest.match, idx));
-
-          // advance cursor
-          cursor = earliest.match.index + earliest.match[0].length;
-        }
-
-        return (
-          <p key={idx} className="text-[11px]">
-            {parts.length ? parts : line}
-          </p>
-        );
-      })}
-    </div>
-  );
+// ---- utilities: persisted number with clamping ----
+function clamp(n: number) {
+  return Math.max(0, Math.min(40, n));
 }
 
-/** ===== Small UI atoms ===== */
-function Badge({ label, symbol }: { label: string; symbol: string }) {
-  return (
-    <span className="inline-flex items-center gap-1 rounded-sm border px-1.5 py-0.5 text-[10px] font-medium">
-      <span aria-hidden>{symbol}</span>
-      <span>{label}</span>
-    </span>
-  );
+function usePersistedNumber(storageKey: string, initial: number) {
+  const [value, setValue] = React.useState<number>(initial);
+  const [hydrated, setHydrated] = React.useState(false);
+
+  // Hydrate from localStorage on mount OR when key changes
+  React.useEffect(() => {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw != null) {
+        const parsed = Number(JSON.parse(raw));
+        if (!Number.isNaN(parsed)) setValue(parsed);
+        else setValue(initial);
+      } else {
+        setValue(initial);
+      }
+    } catch {
+      setValue(initial);
+    }
+    setHydrated(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageKey]);
+
+  // Persist when value changes
+  React.useEffect(() => {
+    if (!hydrated) return;
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(value));
+    } catch {}
+  }, [hydrated, storageKey, value]);
+
+  return { value, setValue, hydrated };
 }
 
-function StatPip({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="flex flex-col items-center">
-      <div className="flex h-10 w-10 items-center justify-center rounded-full border bg-white/90 text-[13px] font-bold shadow-sm">
-        {value}
-      </div>
-      <div className="mt-1 text-[10px] tracking-wide uppercase text-stone-700">{label}</div>
-    </div>
-  );
-}
 
 function SkillTile({
   icon,
@@ -205,15 +155,105 @@ function SkillTile({
     </div>
   );
 }
+
+
+// ---- Health tracker (uses the hook above) ----
+function HealthTracker({
+  storageKey,
+  baseHealth,
+  type
+}: {
+  storageKey: string;
+  baseHealth: number;
+  type: "health" | "sanity" | "resources"
+}) {
+  const { value, setValue, hydrated } = usePersistedNumber(storageKey, baseHealth);
+
+  console.log(type,"Health Tracker  ")
+  // Avoid jarring SSR/CSR mismatch: show base until hydrated, then real value
+  const display = hydrated ? value : baseHealth;
+  return (
+    <div className="flex items-center justify-between rounded-lg border p-2">
+      <div className="flex items-center space-x-1">
+        <Image
+          src={`/assets/images/${type}.webp`}
+          alt={`${type} icon`}
+          width={24}
+          height={24}
+        />
+        <span className="text-[10px] uppercase tracking-wide text-foreground">
+            {type === "health" ? "Health" : type === "sanity" ? "Sanity" : "Res"}
+        </span>
+        
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Button
+          type="button"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md border text-lg"
+          onClick={() => setValue((v) => clamp(v - 1, 0, baseHealth))}
+          aria-label={`Decrease ${type === "health" ? "health" : type === "sanity" ? "sanity" : "resources"}`}
+        >
+          –
+        </Button>
+
+        <div
+          className="w-12 text-center text-xl font-semibold tabular-nums"
+          aria-label={`Current ${type === "health" ? "health" : type === "sanity" ? "sanity" : "resources"}: ${display}`}
+        >
+          {display}
+        </div>
+
+        <Button
+          type="button"
+          size='icon'
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md border text-lg"
+          onClick={() => setValue((v) => clamp(v + 1, 0, baseHealth))}
+          aria-label={`Increase ${type === "health" ? "health" : type === "sanity" ? "sanity" : "resources"}`}
+        >
+          +
+        </Button>
+
+        <Button
+          type="button"
+          size='icon'
+          className="ml-2 inline-flex h-8 items-center justify-center rounded-md border px-2 text-xs"
+          onClick={() => setValue(baseHealth)}
+          aria-label={`Reset ${type === "health" ? "health" : type === "sanity" ? "sanity" : "resources"}`}
+          title="Reset to max"
+        >
+          Reset
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+
 /** ===== Investigator card ===== */
 function InvestigatorCard({
   inv,
   scale = 1,
+  gameId,
+    storageKeyPrefix = "ahlcg:health", // <-- new (optional) prefix
+
 }: {
   inv: AHLCGInvestigator;
   scale?: number;
+  gameId: string;
+  storageKeyPrefix?: string;
 }) {
   const theme = factionTheme(inv.faction_name || "Neutral");
+  // Compose a stable per-investigator storage key
+  const storageKey = React.useMemo(
+    () => `${storageKeyPrefix}:${gameId ?? "global"}:${inv.code}`,
+    [storageKeyPrefix, gameId, inv.code]
+  );
+
+  const sanityStorageKey = React.useMemo(
+    () => `${storageKeyPrefix}:${gameId ?? "global"}:${inv.code}:sanity`,
+    [storageKeyPrefix, gameId, inv.code]
+  );
 
   return (
     <Card
@@ -221,11 +261,7 @@ function InvestigatorCard({
         "relative rounded-xl w-full bg-gradient-to-b shadow-md ring-2 overflow-hidden",
         theme.ring,
       ].join(" ")}
-      style={{
-        // Trading-card-ish aspect ratio ~ 63x88 mm → 0.7159
-        width: `${320 * scale}px`,
-        aspectRatio: "63 / 88",
-      }}
+    
     >
       {/* Header band */}
       <CardHeader
@@ -251,9 +287,6 @@ function InvestigatorCard({
           </div>
         </div>
       </CardHeader>
-
-    
-
     <CardContent
     
     >
@@ -284,7 +317,15 @@ function InvestigatorCard({
          value={inv.skill_agility}
        />
     </div>
-    stuff here
+    <HealthTracker storageKey={storageKey} baseHealth={inv.health}
+    type="health"
+    />
+    <HealthTracker storageKey={sanityStorageKey} baseHealth={inv.sanity}
+    type="sanity"
+    />
+    <HealthTracker storageKey={sanityStorageKey} baseHealth={5}
+    type="resources"
+    />
     </CardContent>
   </Card>
   )
@@ -293,14 +334,15 @@ function InvestigatorCard({
 /** ===== Public component: renders 1–2 cards from a game object ===== */
 export default function InvestigatorCards({
   game,
-  className,
   scale = 1,
 }: InvestigatorCardsProps) {
+    console.log(game, "<game in InvestigatorCards>");
   return (
-    <div className="flex flex-row gap-6 justify-between"
->
-      <InvestigatorCard inv={game.investigator1} scale={scale} />
-      {game.investigator2 ? <InvestigatorCard inv={game.investigator2} scale={scale} /> : null}
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+      <InvestigatorCard inv={game.investigator1} scale={scale}
+        gameId={game.id}
+      />
+      {game.investigator2 ? <InvestigatorCard inv={game.investigator2} scale={scale} gameId={game.id} /> : null}
     </div>
   );
 }

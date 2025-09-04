@@ -1,4 +1,4 @@
-import { getAllInvestigators, getDBInvestigators } from "../actions/arkham-actions";
+import { getDBInvestigators } from "../actions/arkham-actions";
 import Tracker from "./tracker";
 
 
@@ -8,7 +8,7 @@ export default async function Page() {
     // Handle unexpected data structure
     return null;
   }
-  // Expecting: { code: string; name: string }[] or add adapter here if needed
+ 
   return <Tracker initialInvestigators={investigators} />;
   
 }
