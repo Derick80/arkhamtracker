@@ -11,7 +11,10 @@ export default async function Home() {
     <div className="flex flex-col w-full gap-4">
       <p className="text-lg">Welcome {session?.user?.name || "Guest"} </p>
 
-      <Tracker initialInvestigators={investigators} />
+      <Tracker initialInvestigators={investigators.map(inv => ({
+        ...inv,
+        faction_name: inv.faction_name ?? ""
+      }))} />
     </div>
   );
 }

@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "format": "prettier \"app/**/*.ts\" \"app/**/*.tsx\" --write . ",
-    "checkformat": "prettier \"app/**/*.ts\" \"app/**/*.tsx\" --check . "
+    "checkformat": "prettier \"app/**/*.ts\" \"app/**/*.tsx\" --check . ",
+    "postinstall": "prisma db push && prisma db seed && tsx scripts/sync-db.ts"
+
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

@@ -3,7 +3,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import Image from "next/image";
 import * as React from "react";
 
@@ -191,7 +191,7 @@ function HealthTracker({
         <Button
           type="button"
           className="inline-flex h-8 w-8 items-center justify-center rounded-md border text-lg"
-          onClick={() => setValue((v) => clamp(v - 1, 0, baseHealth))}
+          onClick={() => setValue((v) => clamp(v - 1))}
           aria-label={`Decrease ${type === "health" ? "health" : type === "sanity" ? "sanity" : "resources"}`}
         >
           –
@@ -208,7 +208,7 @@ function HealthTracker({
           type="button"
           size='icon'
           className="inline-flex h-8 w-8 items-center justify-center rounded-md border text-lg"
-          onClick={() => setValue((v) => clamp(v + 1, 0, baseHealth))}
+          onClick={() => setValue((v) => clamp(v + 1,))}
           aria-label={`Increase ${type === "health" ? "health" : type === "sanity" ? "sanity" : "resources"}`}
         >
           +
@@ -233,13 +233,11 @@ function HealthTracker({
 /** ===== Investigator card ===== */
 function InvestigatorCard({
   inv,
-  scale = 1,
   gameId,
     storageKeyPrefix = "ahlcg:health", // <-- new (optional) prefix
 
 }: {
   inv: AHLCGInvestigator;
-  scale?: number;
   gameId: string;
   storageKeyPrefix?: string;
 }) {
@@ -255,6 +253,24 @@ function InvestigatorCard({
     [storageKeyPrefix, gameId, inv.code]
   );
 
+
+
+type ElderSplit = { before: string; after: string } | null;
+
+/** Split on the first [elder_sign] token.
+ *  - Case-insensitive
+ *  - Ignores surrounding whitespace
+ *  - Preserves everything else (including [[Tome]] and [action] tokens)
+ */
+ function splitOnElderSign(text: string): ElderSplit {
+  const re = /^(.*?)(?:\s*\[elder_sign\]\s*)([\s\S]*)$/i;
+  const m = re.exec(text);
+  if (!m) return null;
+  return { before: m[1].trim(), after: m[2].trim() };
+}
+
+const { before, after } = splitOnElderSign(inv.real_text ?? "") || {};
+console.log(before, after, "<-- split elder sign");
   return (
     <Card
       className={[
@@ -327,6 +343,14 @@ function InvestigatorCard({
     type="resources"
     />
     </CardContent>
+    <CardFooter>
+      {/* add the investigators ability and mystic symbol ability */}
+      <div className="text-sm">
+        <div className="font-semibold">Abilities</div>
+        <div>{inv.real_text}</div>
+      </div>
+     
+    </CardFooter>
   </Card>
   )
 }
@@ -339,10 +363,10 @@ export default function InvestigatorCards({
     console.log(game, "<game in InvestigatorCards>");
   return (
 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-      <InvestigatorCard inv={game.investigator1} scale={scale}
+      <InvestigatorCard inv={game.investigator1}
         gameId={game.id}
       />
-      {game.investigator2 ? <InvestigatorCard inv={game.investigator2} scale={scale} gameId={game.id} /> : null}
+      {game.investigator2 ? <InvestigatorCard inv={game.investigator2} gameId={game.id} /> : null}
     </div>
   );
 }

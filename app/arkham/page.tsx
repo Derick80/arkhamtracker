@@ -9,6 +9,10 @@ export default async function Page() {
     return null;
   }
  
-  return <Tracker initialInvestigators={investigators} />;
+  const simpleInvestigators = investigators.map(inv => ({
+    ...inv,
+    faction_name: inv.faction_name ?? "",
+  }));
+  return <Tracker initialInvestigators={simpleInvestigators} />;
   
 }

@@ -433,7 +433,7 @@ function GameTrackerView({
               <InvestigatorTurnBlock
                 name={game.investigator2.name}
                 state={tracker.investigation.turns[game.investigator2.code]}
-                onToggle={(k, n) => setTurn(game.investigator2.code, k, n)}
+                onToggle={(k, n) => setTurn(game.investigator2!.code, k, n)}
               />
             )}
           </div>
@@ -595,7 +595,15 @@ export default function Tracker({
           game={activeGame} onUpdate={updateActive} onResetPhase={resetPhase} />
         <div 
         className="flex flex-row w-full justify-between">
-              <InvestigatorCard game={activeGame} />
+              <InvestigatorCard
+                game={{
+                  ...activeGame,
+                  investigator1: { id: activeGame.investigator1.code, ...activeGame.investigator1 },
+                  investigator2: activeGame.investigator2
+                    ? { id: activeGame.investigator2.code, ...activeGame.investigator2 }
+                    : undefined,
+                }}
+              />
               </div>
         </div>
       )}
