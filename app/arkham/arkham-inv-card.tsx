@@ -169,6 +169,8 @@ function HealthTracker({
   const { value, setValue, hydrated } = usePersistedNumber(storageKey, baseHealth);
 
   console.log(type,"Health Tracker  ")
+  // capitalize first letter for display
+  const updatedType = type.charAt(0).toUpperCase() + type.slice(1);
   // Avoid jarring SSR/CSR mismatch: show base until hydrated, then real value
   const display = hydrated ? value : baseHealth;
   return (
