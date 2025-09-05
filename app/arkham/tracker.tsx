@@ -162,8 +162,8 @@ function baseEnemy(): PhaseChecklistItem[] {
 function baseUpkeep(): PhaseChecklistItem[] {
   return [
     { id: "reset", label: "Ready cards / reset actions", checked: false },
-    { id: "draw1", label: "Investigator 1 draw 1 card", checked: false },
-    { id: "draw2", label: "Investigator 2 draw 1 card", checked: false },
+    { id: "draw1", label: "Investigator 1 draw a card", checked: false },
+    { id: "draw2", label: "Investigator 2 draw a card", checked: false },
     { id: "resources", label: "Each Investigator gains 1 resource", checked: false },
     { id: "hand", label: "Check hand size", checked: false },
     { id: "end", label: "End of phase/round", checked: false },
@@ -326,6 +326,19 @@ function GameTrackerView({
   onResetPhase: (phase: "mythos" | "investigation" | "enemy" | "upkeep") => void;
 }) {
   const { tracker } = game;
+  
+  const isTwoPlayer = !!game.investigator2;
+
+const mythosItems = React.useMemo(
+  () => (isTwoPlayer ? tracker.mythos : tracker.mythos.filter((i) => i.id !== "enc2")),
+  [isTwoPlayer, tracker.mythos]
+);
+
+const upkeepItems = React.useMemo(
+  () => (isTwoPlayer ? tracker.upkeep : tracker.upkeep.filter((i) => i.id !== "draw2")),
+  [isTwoPlayer, tracker.upkeep]
+);
+
 
   // ——— Mythos/Enemy/Upkeep checklist toggles ———
   function setChecklist(
@@ -401,7 +414,7 @@ function GameTrackerView({
           </div>
         </CardHeader>
         <CardContent>
-          <Checklist items={tracker.mythos} onToggle={(id, n) => setChecklist("mythos", id, n)} />
+          <Checklist items={mythosItems} onToggle={(id, n) => setChecklist("mythos", id, n)} />
         </CardContent>
       </Card>
 
@@ -476,7 +489,7 @@ function GameTrackerView({
           </div>
         </CardHeader>
         <CardContent>
-          <Checklist items={tracker.upkeep} onToggle={(id, n) => setChecklist("upkeep", id, n)} />
+          <Checklist items={upkeepItems} onToggle={(id, n) => setChecklist("upkeep", id, n)} />
         </CardContent>
       </Card>
 

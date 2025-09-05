@@ -12,6 +12,7 @@ export default async function Home() {
         ...inv,
         faction_name: inv.faction_name ?? ""
       }))} />
+      
     </div>
   );
 }
