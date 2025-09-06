@@ -19,9 +19,10 @@ const NavigationBar = async () => {
             className="flex items-center space-x-2"
           >
             {link.icon}
-            <span>{link.label}</span>
+            <span>Arkham Horror LCG — Round Tracker</span>
           </Link>
         ))}
+        
       </div>
 {/* come back to this part and create a dropdown menu or something similar  */}
       <div className="flex flex-row justify-around  items-center gap-4">

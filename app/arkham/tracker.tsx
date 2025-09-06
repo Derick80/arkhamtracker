@@ -97,37 +97,22 @@ function InvestigatorTurnBlock({
 }) {
   return (
     <Card className="border-dashed">
-      <CardHeader className="py-3">
-        <CardTitle className="text-base">{name} — Turn</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <label className="flex items-center gap-3">
-          <Checkbox
-            checked={state.startOfTurn}
-            onCheckedChange={(v) => onToggle("startOfTurn", Boolean(v))}
-          />
-          <span className="text-sm">Start of turn</span>
-        </label>
 
-        <div className="grid gap-2">
-          {state.actions.map((a) => (
-            <label key={a.id} className="flex items-center gap-3 rounded-lg border p-2">
+      <CardContent className="p-">
+        {name} — Turn
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground mb-1">Actions</span>
+          <div className="flex gap-3">
+            {state.actions.map((a, idx) => (
               <Checkbox
+                key={a.id}
                 checked={a.checked}
                 onCheckedChange={(v) => onToggle(`action:${a.id}`, Boolean(v))}
+                aria-label={`Action ${idx + 1}`}
               />
-              <span className="text-sm">{a.label}</span>
-            </label>
-          ))}
+            ))}
+          </div>
         </div>
-
-        <label className="flex items-center gap-3">
-          <Checkbox
-            checked={state.endOfTurn}
-            onCheckedChange={(v) => onToggle("endOfTurn", Boolean(v))}
-          />
-          <span className="text-sm">End of turn</span>
-        </label>
       </CardContent>
     </Card>
   );
@@ -206,8 +191,8 @@ function initTracker(inv1: SimpleInvestigator, inv2?: SimpleInvestigator | null)
 function SectionHeading({ roman, title }: { roman: string; title: string }) {
   return (
     <div className="flex items-center gap-3">
-      <div className="text-xl font-semibold">{roman}.</div>
-      <div className="text-xl font-semibold">{title}</div>
+      <div className="text-l font-semibold">{roman}.</div>
+      <div className="text-l font-semibold">{title}</div>
     </div>
   );
 }
@@ -404,38 +389,24 @@ const upkeepItems = React.useMemo(
     <div className="space-y-6">
      
       {/* I. Mythos Phase */}
+                <SectionHeading roman="I" title="MYTHOS PHASE" />
+
       <Card>
-        <CardHeader className="space-y-3">
-          <SectionHeading roman="I" title="MYTHOS PHASE" />
-          <div className="flex justify-end">
+  
+        <CardContent>
+          <Checklist items={mythosItems} onToggle={(id, n) => setChecklist("mythos", id, n)} />
+              <div className="flex justify-end pt-2">
             <Button variant="secondary" size="sm" onClick={() => onResetPhase("mythos")}>
               Reset Mythos
             </Button>
           </div>
-        </CardHeader>
-        <CardContent>
-          <Checklist items={mythosItems} onToggle={(id, n) => setChecklist("mythos", id, n)} />
         </CardContent>
       </Card>
+          <SectionHeading roman="II" title="INVESTIGATION PHASE" />
 
       {/* II. Investigation Phase */}
       <Card>
-        <CardHeader className="space-y-3">
-          <SectionHeading roman="II" title="INVESTIGATION PHASE" />
-          <div className="flex items-center justify-between">
-            <label className="flex items-center gap-3">
-              <Checkbox
-                checked={tracker.investigation.startOfPhase}
-                onCheckedChange={(v) => setInvestigationMeta("startOfPhase", Boolean(v))}
-              />
-              <span className="text-sm">Start of phase</span>
-            </label>
-            <Button variant="secondary" size="sm" onClick={() => onResetPhase("investigation")}>
-              Reset Investigation
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      
           <div className="grid gap-4 md:grid-cols-2">
             <InvestigatorTurnBlock
               name={game.investigator1.name}
@@ -452,15 +423,19 @@ const upkeepItems = React.useMemo(
           </div>
 
           <Divider />
-
-          <label className="flex items-center gap-3">
+              <div 
+              className="flex items-center justify-between gap-3">
+          <label  className="flex items-center gap-3" >
             <Checkbox
               checked={tracker.investigation.endOfPhase}
               onCheckedChange={(v) => setInvestigationMeta("endOfPhase", Boolean(v))}
             />
             <span className="text-sm">End of phase</span>
           </label>
-        </CardContent>
+           <Button variant="secondary" size="sm" onClick={() => onResetPhase("investigation")}>
+              Reset Investigation
+            </Button>
+            </div>
       </Card>
 
       {/* III. Enemy Phase */}
@@ -558,18 +533,7 @@ export default function Tracker({
   }
 
   return (
-    <div className="container py-8 space-y-6">
-      <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Arkham Horror LCG — Round Tracker</h1>
-        <div className="flex items-center gap-2">
-          {activeGame && (
-            <Button variant="destructive" size="sm" onClick={() => deleteGame(activeGame.id)}>
-              Delete
-            </Button>
-          )}
-         
-        </div>
-      </header>
+    <div className="container py-8 space-y-6">    
 
       {!activeGame ? (
         <GameCreator
@@ -579,6 +543,11 @@ export default function Tracker({
         />
       ) : (
         <div className="space-y-6">
+          
+          <GameTrackerView
+          
+            
+          game={activeGame} onUpdate={updateActive} onResetPhase={resetPhase} />
           <Card>
             <CardHeader className="py-4">
               <CardTitle className="flex items-center justify-between text-lg">
@@ -594,10 +563,6 @@ export default function Tracker({
             </CardContent>
           </Card>
 
-          <GameTrackerView
-          
-            
-          game={activeGame} onUpdate={updateActive} onResetPhase={resetPhase} />
         <div 
         className="flex flex-row w-full justify-between">
               <InvestigatorCard
@@ -612,6 +577,14 @@ export default function Tracker({
               </div>
         </div>
       )}
+      <div className="mb-12 flex items-center gap-2">
+          {activeGame && (
+            <Button variant="destructive" size="sm" onClick={() => deleteGame(activeGame.id)}>
+              Reset Game
+            </Button>
+          )}
+         
+        </div>
     </div>
   );
 }
