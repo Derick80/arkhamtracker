@@ -442,20 +442,20 @@ function GameTrackerViewDesktop({
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-12 gap-4">
+<div className="grid grid-cols-1 gap-4 mt-4">
         {/* Mythos */}
-        <Card className="col-span-4">
-          <CardHeader className="py-3 px-4">
+        <Card>
+          <CardHeader>
             <CardTitle className="text-base">I. Mythos</CardTitle>
           </CardHeader>
-          <CardContent className="p-4">
+          <CardContent>
             <Checklist items={mythosItems} onToggle={(id, n) => setChecklist("mythos", id, n)} columns={2} />
           </CardContent>
         </Card>
 
         {/* Investigation */}
-        <Card className="col-span-8">
-          <CardHeader className="py-3 px-4">
+        <Card >
+          <CardHeader >
             <CardTitle className="text-base">II. Investigation</CardTitle>
           </CardHeader>
           <CardContent className="p-4 grid grid-cols-2 gap-4">
