@@ -16,13 +16,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { SimpleInvestigator } from "../actions/arkham-actions";
 import InvestigatorCard from "./arkham-inv-card";
 
-
 // ----------------- Types -----------------
-export type InvestigatorOption = {
-  code: string;
-  name: string;
-};
-
+export type InvestigatorOption = { code: string; name: string };
 type InvestigatorCode = string;
 
 type PhaseChecklistItem = { id: string; label: string; checked: boolean };
@@ -52,34 +47,57 @@ type Game = {
   tracker: RoundTrackerState;
 };
 
-
-// Minimal “cn” helper if you do not already have one:
+// ----------------- Shared UI helpers -----------------
 function cn(...xs: Array<string | false | null | undefined>) {
   return xs.filter(Boolean).join(" ");
+}
+
+function SectionHeading({ roman, title, className }: { roman: string; title: string; className?: string }) {
+  return (
+    <div className={cn("flex items-center gap-2", className)}>
+      <div className="font-semibold">{roman}.</div>
+      <div className="font-semibold">{title}</div>
+    </div>
+  );
 }
 
 function Checklist({
   items,
   onToggle,
+  dense = false,
+  columns = 2,
 }: {
   items: PhaseChecklistItem[];
   onToggle: (id: string, next: boolean) => void;
+  dense?: boolean;
+  columns?: 1 | 2 | 3 | 4;
 }) {
   return (
-    <div className="grid gap-2">
+    <div
+      className={cn(
+        "grid",
+        columns === 1 && "grid-cols-1",
+        columns === 2 && "grid-cols-2",
+        columns === 3 && "grid-cols-3",
+        columns === 4 && "grid-cols-4",
+        dense ? "gap-1" : "gap-2"
+      )}
+    >
       {items.map((it) => (
         <label
           key={it.id}
           className={cn(
-            "flex items-center gap-3 rounded-xl border p-3",
+            "flex items-center gap-2 rounded-lg border",
+            dense ? "p-2" : "p-3",
             it.checked && "bg-muted"
           )}
         >
           <Checkbox
+            className={dense ? "h-4 w-4" : "h-5 w-5"}
             checked={it.checked}
             onCheckedChange={(v) => onToggle(it.id, Boolean(v))}
           />
-          <span className="text-sm">{it.label}</span>
+          <span className={dense ? "text-xs" : "text-sm"}>{it.label}</span>
         </label>
       ))}
     </div>
@@ -90,83 +108,61 @@ function InvestigatorTurnBlock({
   name,
   state,
   onToggle,
+  dense = false,
 }: {
   name: string;
   state: InvestigatorTurn;
   onToggle: (key: "startOfTurn" | "endOfTurn" | `action:${string}`, next: boolean) => void;
+  dense?: boolean;
 }) {
   return (
-    <Card className="border-dashed">
-      <CardHeader className="py-3">
-        <CardTitle className="text-base">{name} — Turn</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <label className="flex items-center gap-3">
-          <Checkbox
-            checked={state.startOfTurn}
-            onCheckedChange={(v) => onToggle("startOfTurn", Boolean(v))}
-          />
-          <span className="text-sm">Start of turn</span>
-        </label>
-
-        <div className="grid gap-2">
-          {state.actions.map((a) => (
-            <label key={a.id} className="flex items-center gap-3 rounded-lg border p-2">
-              <Checkbox
-                checked={a.checked}
-                onCheckedChange={(v) => onToggle(`action:${a.id}`, Boolean(v))}
-              />
-              <span className="text-sm">{a.label}</span>
-            </label>
+    <div className={cn("rounded-lg border", dense ? "p-2 space-y-1" : "p-3 space-y-2")}>
+      <div className="flex items-center justify-between">
+        <span className={dense ? "text-sm font-medium truncate" : "text-base font-medium truncate"}>
+          {name}
+        </span>
+      </div>
+      <div className={dense ? "space-y-1" : "space-y-2"}>
+        <span className={dense ? "text-[10px] text-muted-foreground" : "text-xs text-muted-foreground"}>
+          Actions
+        </span>
+        <div className={cn("flex items-center", dense ? "gap-2" : "gap-3")}>
+          {state.actions.map((a, idx) => (
+            <Checkbox
+              key={a.id}
+              className={dense ? "h-5 w-5" : "h-6 w-6"}
+              checked={a.checked}
+              onCheckedChange={(v) => onToggle(`action:${a.id}`, Boolean(v))}
+              aria-label={`Action ${idx + 1}`}
+            />
           ))}
         </div>
-
-        <label className="flex items-center gap-3">
-          <Checkbox
-            checked={state.endOfTurn}
-            onCheckedChange={(v) => onToggle("endOfTurn", Boolean(v))}
-          />
-          <span className="text-sm">End of turn</span>
-        </label>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
-
-
-// ----------------- LocalStorage helpers -----------------
-const LS_KEY = "ahlcg-games.v1";
-const LS_ACTIVE_KEY = "ahlcg-active-game-id.v1";
-function loadGames(): Game[] { try { return JSON.parse(localStorage.getItem(LS_KEY) || "[]"); } catch { return []; } }
-function saveGames(games: Game[]) { localStorage.setItem(LS_KEY, JSON.stringify(games)); }
-function loadActiveGameId(): string | null { return localStorage.getItem(LS_ACTIVE_KEY); }
-function saveActiveGameId(gameId: string) { localStorage.setItem(LS_ACTIVE_KEY, gameId); }
 
 // ----------------- Phase templates -----------------
 function baseMythos(): PhaseChecklistItem[] {
   return [
-    { id: "doom", label: "Place 1 doom, check threshold", checked: false },
-    { id: "enc1", label: "Investigator 1 encounter card", checked: false },
-    { id: "enc2", label: "Investigator 2 encounter card", checked: false },
-    { id: "end", label: "End of phase", checked: false },
+    { id: "doom", label: "Place 1 doom (check threshold)", checked: false },
+    { id: "enc1", label: "Inv 1 encounter", checked: false },
+    { id: "enc2", label: "Inv 2 encounter", checked: false },
   ];
 }
 function baseEnemy(): PhaseChecklistItem[] {
   return [
-    { id: "start", label: "Start of phase", checked: false },
-    { id: "hunters", label: "Hunter enemies move", checked: false },
+    { id: "hunters", label: "Hunters move", checked: false },
     { id: "attacks", label: "Enemies attack", checked: false },
-    { id: "end", label: "End of phase", checked: false },
   ];
 }
 function baseUpkeep(): PhaseChecklistItem[] {
   return [
-    { id: "reset", label: "Ready cards / reset actions", checked: false },
-    { id: "draw1", label: "Investigator 1 draw a card", checked: false },
-    { id: "draw2", label: "Investigator 2 draw a card", checked: false },
-    { id: "resources", label: "Each Investigator gains 1 resource", checked: false },
+    { id: "reset", label: "Ready exhausted", checked: false },
+    { id: "draw1", label: "Inv 1 draw", checked: false },
+    { id: "draw2", label: "Inv 2 draw", checked: false },
+    { id: "resources", label: "+1 resource each", checked: false },
     { id: "hand", label: "Check hand size", checked: false },
-    { id: "end", label: "End of phase/round", checked: false },
   ];
 }
 function makeInvestigatorTurn(labelPrefix: string): InvestigatorTurn {
@@ -185,7 +181,6 @@ function makeInvestigationPhase(
   inv1: SimpleInvestigator,
   inv2?: SimpleInvestigator | null
 ): InvestigationPhase {
-    console.log(inv1,"inv1")
   const turns: Record<string, InvestigatorTurn> = {
     [inv1.code]: makeInvestigatorTurn(inv1.name),
   };
@@ -202,18 +197,27 @@ function initTracker(inv1: SimpleInvestigator, inv2?: SimpleInvestigator | null)
   };
 }
 
-// ----------------- Small UI bits -----------------
-function SectionHeading({ roman, title }: { roman: string; title: string }) {
-  return (
-    <div className="flex items-center gap-3">
-      <div className="text-xl font-semibold">{roman}.</div>
-      <div className="text-xl font-semibold">{title}</div>
-    </div>
-  );
+// ----------------- LocalStorage helpers -----------------
+const LS_KEY = "ahlcg-games.v1";
+const LS_ACTIVE_KEY = "ahlcg-active-game-id.v1";
+function loadGames(): Game[] {
+  try {
+    return JSON.parse(localStorage.getItem(LS_KEY) || "[]");
+  } catch {
+    return [];
+  }
 }
-function Divider() { return <div className="h-px w-full bg-border" />; }
+function saveGames(games: Game[]) {
+  localStorage.setItem(LS_KEY, JSON.stringify(games));
+}
+function loadActiveGameId(): string | null {
+  return localStorage.getItem(LS_ACTIVE_KEY);
+}
+function saveActiveGameId(gameId: string) {
+  localStorage.setItem(LS_ACTIVE_KEY, gameId);
+}
 
-// ----------------- GameCreator -----------------
+// ----------------- GameCreator (responsive minimal) -----------------
 function GameCreator({
   investigators,
   onCreate,
@@ -223,13 +227,11 @@ function GameCreator({
   onCreate: (game: Game) => void;
   existingNames: string[];
 }) {
-    // console.log(investigators, "<investigators in GameCreator>");
   const [name, setName] = useState("");
   const [inv1, setInv1] = useState<string>("");
-  const [inv2, setInv2] = useState<string>("none"); // sentinel for “no second investigator”
+  const [inv2, setInv2] = useState<string>("none");
 
   const chosen1 = investigators?.find((i) => i.code === inv1) || null;
-  console.log(chosen1, "<chosen1 in GameCreator>");
   const chosen2 = inv2 === "none" ? null : investigators?.find((i) => i.code === inv2) || null;
   const nameTaken = useMemo(() => name.trim() && existingNames.includes(name.trim()), [name, existingNames]);
 
@@ -248,44 +250,64 @@ function GameCreator({
   }
 
   return (
-    <Card className="max-w-3xl mx-auto">
-      <CardHeader><CardTitle>Create a New Game</CardTitle></CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Game Name</label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="E.g., The Gathering" />
-            {nameTaken ? <p className="text-sm text-destructive">Name already exists.</p> : null}
-          </div>
+    <Card className="mx-auto w-full max-w-[420px] md:max-w-3xl">
+      <CardHeader className="py-2 px-3 md:px-4 md:py-3">
+        <CardTitle className="text-sm md:text-base">Create a New Game</CardTitle>
+      </CardHeader>
+      <CardContent className="p-3 md:p-4 space-y-3">
+        <div className="grid gap-2">
+          <label className="text-xs md:text-sm font-medium">Game Name</label>
+          <Input
+            className="h-8 md:h-9"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="E.g., The Gathering"
+          />
+          {nameTaken ? <p className="text-xs text-destructive">Name already exists.</p> : null}
+        </div>
 
-         <div 
-         className="flex flex-row gap-2">
- <div className="space-y-2">
-            <label className="text-sm font-medium">Investigator 1</label>
+        <div className="grid grid-cols-2 gap-2 md:gap-3">
+          <div className="space-y-1">
+            <label className="text-xs md:text-sm font-medium">Investigator 1</label>
             <Select value={inv1} onValueChange={setInv1}>
-              <SelectTrigger><SelectValue placeholder="Select investigator" /></SelectTrigger>
+              <SelectTrigger className="h-8 md:h-9">
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
               <SelectContent>
                 {investigators?.map((i) => (
-                  <SelectItem key={i.code} value={i.code}>{i.name}</SelectItem>
+                  <SelectItem key={i.code} value={i.code}>
+                    {i.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Investigator 2 (optional)</label>
+
+          <div className="space-y-1">
+            <label className="text-xs md:text-sm font-medium">Investigator 2</label>
             <Select value={inv2} onValueChange={setInv2}>
-              <SelectTrigger><SelectValue placeholder="Select investigator (optional)" /></SelectTrigger>
+              <SelectTrigger className="h-8 md:h-9">
+                <SelectValue placeholder="Optional" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">None</SelectItem>
-                {investigators?.filter((i) => i.code !== inv1).map((i) => (
-                  <SelectItem key={i.code} value={i.code}>{i.name}</SelectItem>
-                ))}
+                {investigators
+                  ?.filter((i) => i.code !== inv1)
+                  .map((i) => (
+                    <SelectItem key={i.code} value={i.code}>
+                      {i.name}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
           </div>
-        </div></div>
+        </div>
 
-        <Button className="w-full" disabled={!name.trim() || !inv1 || !!nameTaken} onClick={handleCreate}>
+        <Button
+          className="w-full h-8 md:h-9 text-xs md:text-sm"
+          disabled={!name.trim() || !inv1 || !!nameTaken}
+          onClick={handleCreate}
+        >
           Create Game
         </Button>
       </CardContent>
@@ -293,75 +315,26 @@ function GameCreator({
   );
 }
 
-
-type InvestigatorCard = {
-  investigatorId: string;
-  code: string;
-  name: string;
-  subname?: string | null;
-  factionCode?: string;
-  health: number;
-  sanity: number;
-  skill_willpower: number;
-  skill_intellect: number;
-  skill_combat: number;
-  skill_agility: number;
-  currentHealth?: number | null;
-  currentSanity?: number | null;
-  currentResources?: number | null;
-  actions?: number | null;
-};
-
-
-// ----------------- GameTrackerView (unchanged logic) -----------------
-// … keep your existing tracker view and phase reset functions here …
-// (omitted for brevity — use your prior implementation)
-function GameTrackerView({
-  game,
-  onUpdate,
-  onResetPhase,
-}: {
-  game: Game;
-  onUpdate: (next: Game) => void;
-  onResetPhase: (phase: "mythos" | "investigation" | "enemy" | "upkeep") => void;
-}) {
+// ----------------- Shared tracker logic -----------------
+function useTrackerTransforms(game: Game, onUpdate: (next: Game) => void) {
   const { tracker } = game;
-  
   const isTwoPlayer = !!game.investigator2;
 
-const mythosItems = React.useMemo(
-  () => (isTwoPlayer ? tracker.mythos : tracker.mythos.filter((i) => i.id !== "enc2")),
-  [isTwoPlayer, tracker.mythos]
-);
+  const mythosItems = React.useMemo(
+    () => (isTwoPlayer ? tracker.mythos : tracker.mythos.filter((i) => i.id !== "enc2")),
+    [isTwoPlayer, tracker.mythos]
+  );
 
-const upkeepItems = React.useMemo(
-  () => (isTwoPlayer ? tracker.upkeep : tracker.upkeep.filter((i) => i.id !== "draw2")),
-  [isTwoPlayer, tracker.upkeep]
-);
+  const upkeepItems = React.useMemo(
+    () => (isTwoPlayer ? tracker.upkeep : tracker.upkeep.filter((i) => i.id !== "draw2")),
+    [isTwoPlayer, tracker.upkeep]
+  );
 
-
-  // ——— Mythos/Enemy/Upkeep checklist toggles ———
-  function setChecklist(
-    phase: "mythos" | "enemy" | "upkeep",
-    id: string,
-    next: boolean
-  ) {
+  function setChecklist(phase: "mythos" | "enemy" | "upkeep", id: string, next: boolean) {
     const list = tracker[phase].map((i) => (i.id === id ? { ...i, checked: next } : i));
     onUpdate({ ...game, tracker: { ...tracker, [phase]: list } });
   }
 
-  // ——— Investigation meta toggles ———
-  function setInvestigationMeta(
-    key: "startOfPhase" | "endOfPhase",
-    next: boolean
-  ) {
-    onUpdate({
-      ...game,
-      tracker: { ...tracker, investigation: { ...tracker.investigation, [key]: next } },
-    });
-  }
-
-  // ——— Per-investigator turn toggles ———
   function setTurn(
     invCode: string,
     key: "startOfTurn" | "endOfTurn" | `action:${string}`,
@@ -394,121 +367,141 @@ const upkeepItems = React.useMemo(
     });
   }
 
-  // ——— Reset All (optional) ———
   function resetAllPhases() {
     const fresh = initTracker(game.investigator1, game.investigator2 ?? null);
     onUpdate({ ...game, tracker: fresh });
   }
 
-  return (
-    <div className="space-y-6">
-     
-      {/* I. Mythos Phase */}
-      <Card>
-        <CardHeader className="space-y-3">
-          <SectionHeading roman="I" title="MYTHOS PHASE" />
-          <div className="flex justify-end">
-            <Button variant="secondary" size="sm" onClick={() => onResetPhase("mythos")}>
-              Reset Mythos
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Checklist items={mythosItems} onToggle={(id, n) => setChecklist("mythos", id, n)} />
-        </CardContent>
-      </Card>
+  return { mythosItems, upkeepItems, setChecklist, setTurn, resetAllPhases };
+}
 
-      {/* II. Investigation Phase */}
-      <Card>
-        <CardHeader className="space-y-3">
-          <SectionHeading roman="II" title="INVESTIGATION PHASE" />
-          <div className="flex items-center justify-between">
-            <label className="flex items-center gap-3">
-              <Checkbox
-                checked={tracker.investigation.startOfPhase}
-                onCheckedChange={(v) => setInvestigationMeta("startOfPhase", Boolean(v))}
-              />
-              <span className="text-sm">Start of phase</span>
-            </label>
-            <Button variant="secondary" size="sm" onClick={() => onResetPhase("investigation")}>
-              Reset Investigation
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
+// ----------------- Mobile View -----------------
+function GameTrackerViewMobile({
+  game,
+  onUpdate,
+}: {
+  game: Game;
+  onUpdate: (next: Game) => void;
+}) {
+  const { mythosItems, upkeepItems, setChecklist, setTurn, resetAllPhases } = useTrackerTransforms(
+    game,
+    onUpdate
+  );
+  const t = game.tracker;
+
+  return (
+    <div className="space-y-3 max-w-[420px] mx-auto">
+      <h3 className="text-sm font-semibold text-muted-foreground">I. MYTHOS PHASE</h3>
+      <Checklist items={mythosItems} onToggle={(id, n) => setChecklist("mythos", id, n)} dense columns={2} />
+
+      <SectionHeading roman="II" title="INVESTIGATION PHASE" className="text-sm" />
+      <div className="grid gap-2">
+        <InvestigatorTurnBlock
+          name={game.investigator1.name}
+          state={t.investigation.turns[game.investigator1.code]}
+          onToggle={(k, n) => setTurn(game.investigator1.code, k, n)}
+          dense
+        />
+        {game.investigator2 && (
+          <InvestigatorTurnBlock
+            name={game.investigator2.name}
+            state={t.investigation.turns[game.investigator2.code]}
+            onToggle={(k, n) => setTurn(game.investigator2!.code, k, n)}
+          />
+        )}
+      </div>
+
+      <h3 className="text-sm font-semibold text-muted-foreground">III. ENEMY PHASE</h3>
+      <Checklist items={t.enemy} onToggle={(id, n) => setChecklist("enemy", id, n)} dense columns={2} />
+
+      <h3 className="text-sm font-semibold text-muted-foreground">IV. UPKEEP PHASE</h3>
+      <Checklist items={upkeepItems} onToggle={(id, n) => setChecklist("upkeep", id, n)} dense columns={2} />
+
+      <div className="flex justify-center pt-1">
+        <Button variant="destructive" size="sm" className="h-8" onClick={resetAllPhases}>
+          Reset All
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ----------------- Desktop View -----------------
+function GameTrackerViewDesktop({
+  game,
+  onUpdate,
+}: {
+  game: Game;
+  onUpdate: (next: Game) => void;
+}) {
+  const { mythosItems, upkeepItems, setChecklist, setTurn, resetAllPhases } = useTrackerTransforms(
+    game,
+    onUpdate
+  );
+  const t = game.tracker;
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-12 gap-4">
+        {/* Mythos */}
+        <Card className="col-span-4">
+          <CardHeader className="py-3 px-4">
+            <CardTitle className="text-base">I. Mythos</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <Checklist items={mythosItems} onToggle={(id, n) => setChecklist("mythos", id, n)} columns={2} />
+          </CardContent>
+        </Card>
+
+        {/* Investigation */}
+        <Card className="col-span-8">
+          <CardHeader className="py-3 px-4">
+            <CardTitle className="text-base">II. Investigation</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 grid grid-cols-2 gap-4">
             <InvestigatorTurnBlock
               name={game.investigator1.name}
-              state={tracker.investigation.turns[game.investigator1.code]}
+              state={t.investigation.turns[game.investigator1.code]}
               onToggle={(k, n) => setTurn(game.investigator1.code, k, n)}
             />
             {game.investigator2 && (
               <InvestigatorTurnBlock
                 name={game.investigator2.name}
-                state={tracker.investigation.turns[game.investigator2.code]}
+                state={t.investigation.turns[game.investigator2.code]}
                 onToggle={(k, n) => setTurn(game.investigator2!.code, k, n)}
               />
             )}
-          </div>
+          </CardContent>
+        </Card>
+      </div>
 
-          <Divider />
+      <div className="grid grid-cols-12 gap-4">
+        {/* Enemy */}
+        <Card className="col-span-6">
+          <CardHeader className="py-3 px-4">
+            <CardTitle className="text-base">III. Enemy</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <Checklist items={t.enemy} onToggle={(id, n) => setChecklist("enemy", id, n)} columns={2} />
+          </CardContent>
+        </Card>
 
-          <label className="flex items-center gap-3">
-            <Checkbox
-              checked={tracker.investigation.endOfPhase}
-              onCheckedChange={(v) => setInvestigationMeta("endOfPhase", Boolean(v))}
-            />
-            <span className="text-sm">End of phase</span>
-          </label>
-        </CardContent>
-      </Card>
+        {/* Upkeep */}
+        <Card className="col-span-6">
+          <CardHeader className="py-3 px-4">
+            <CardTitle className="text-base">IV. Upkeep</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <Checklist items={upkeepItems} onToggle={(id, n) => setChecklist("upkeep", id, n)} columns={2} />
+          </CardContent>
+        </Card>
+      </div>
 
-      {/* III. Enemy Phase */}
-      <Card>
-        <CardHeader className="space-y-3">
-          <SectionHeading roman="III" title="ENEMY PHASE" />
-          <div className="flex justify-end">
-            <Button variant="secondary" size="sm" onClick={() => onResetPhase("enemy")}>
-              Reset Enemy
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Checklist items={tracker.enemy} onToggle={(id, n) => setChecklist("enemy", id, n)} />
-        </CardContent>
-      </Card>
-
-      {/* IV. Upkeep Phase */}
-      <Card>
-        <CardHeader className="space-y-3">
-          <SectionHeading roman="IV" title="UPKEEP PHASE" />
-          <div className="flex justify-end">
-            <Button variant="secondary" size="sm" onClick={() => onResetPhase("upkeep")}>
-              Reset Upkeep
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Checklist items={upkeepItems} onToggle={(id, n) => setChecklist("upkeep", id, n)} />
-        </CardContent>
-      </Card>
-
- {/* Reset All Button */}
-      <div className="flex justify-center pt-6">
-        <Button variant="destructive" size="lg" onClick={resetAllPhases}>
+      <div className="flex justify-center">
+        <Button variant="destructive" size="default" onClick={resetAllPhases}>
           Reset All Phases
         </Button>
-
       </div>
-
-      
-
-      {/* Additional Investigator Slots */}
-      <div className="grid gap-4 md:grid-cols-2">
-        
-      </div>
-
-     
     </div>
   );
 }
@@ -519,11 +512,11 @@ export default function Tracker({
 }: {
   initialInvestigators: SimpleInvestigator[];
 }) {
-  const [investigators, setInvestigators] = useState<SimpleInvestigator[]>(initialInvestigators);
+  const [investigators] = useState<SimpleInvestigator[]>(initialInvestigators);
   const [games, setGames] = useState<Game[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  // Load games/active selection on mount
+  // Load from storage
   useEffect(() => {
     const g = loadGames();
     const a = loadActiveGameId();
@@ -531,17 +524,28 @@ export default function Tracker({
     setActiveId(a && g.some((x) => x.id === a) ? a : g[0]?.id ?? null);
   }, []);
 
-  // Persist games/active selection
-  useEffect(() => { saveGames(games); }, [games]);
-  useEffect(() => { if (activeId) saveActiveGameId(activeId); }, [activeId]);
+  // Persist
+  useEffect(() => {
+    saveGames(games);
+  }, [games]);
+  useEffect(() => {
+    if (activeId) saveActiveGameId(activeId);
+  }, [activeId]);
 
   const activeGame = useMemo(() => games.find((g) => g.id === activeId) || null, [games, activeId]);
 
-  function createGame(game: Game) { setGames((prev) => [game, ...prev]); setActiveId(game.id); }
-  function updateActive(next: Game) { setGames((prev) => prev.map((g) => (g.id === next.id ? next : g))); }
-  function deleteGame(id: string) { setGames((prev) => prev.filter((g) => g.id !== id)); if (activeId === id) setActiveId(null); }
+  function createGame(game: Game) {
+    setGames((prev) => [game, ...prev]);
+    setActiveId(game.id);
+  }
+  function updateActive(next: Game) {
+    setGames((prev) => prev.map((g) => (g.id === next.id ? next : g)));
+  }
+  function deleteGame(id: string) {
+    setGames((prev) => prev.filter((g) => g.id !== id));
+    if (activeId === id) setActiveId(null);
+  }
 
-  // Phase resets
   function resetPhase(phase: "mythos" | "investigation" | "enemy" | "upkeep") {
     if (!activeGame) return;
     let tracker = activeGame.tracker;
@@ -551,26 +555,17 @@ export default function Tracker({
     if (phase === "investigation") {
       tracker = {
         ...tracker,
-        investigation: makeInvestigationPhase(activeGame.investigator1, activeGame.investigator2 ?? undefined),
+        investigation: makeInvestigationPhase(
+          activeGame.investigator1,
+          activeGame.investigator2 ?? undefined
+        ),
       };
     }
     updateActive({ ...activeGame, tracker });
   }
 
   return (
-    <div className="container py-8 space-y-6">
-      <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Arkham Horror LCG — Round Tracker</h1>
-        <div className="flex items-center gap-2">
-          {activeGame && (
-            <Button variant="destructive" size="sm" onClick={() => deleteGame(activeGame.id)}>
-              Delete
-            </Button>
-          )}
-         
-        </div>
-      </header>
-
+    <div className="container mx-auto px-2 md:px-6 py-4 md:py-8 space-y-4 md:space-y-6">
       {!activeGame ? (
         <GameCreator
           investigators={investigators}
@@ -578,28 +573,32 @@ export default function Tracker({
           existingNames={games.map((g) => g.name)}
         />
       ) : (
-        <div className="space-y-6">
-          <Card>
-            <CardHeader className="py-4">
-              <CardTitle className="flex items-center justify-between text-lg">
-                <span>{activeGame.name}</span>
-                <span className="text-sm font-normal text-muted-foreground">
-                  Created: {new Date(activeGame.createdAt).toLocaleString()}
-                </span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-2 md:grid-cols-2">
-              <div className="text-sm"><span className="font-medium">Investigator 1:</span> {activeGame.investigator1.name}</div>
-              <div className="text-sm"><span className="font-medium">Investigator 2:</span> {activeGame.investigator2?.name ?? "—"}</div>
-            </CardContent>
-          </Card>
+        <>
+          {/* Mobile view */}
+          <div className="md:hidden">
+            <GameTrackerViewMobile game={activeGame} onUpdate={updateActive} />
+            <Card className="mt-3 max-w-[420px] mx-auto">
+              <CardHeader className="py-2 px-3">
+                <CardTitle className="text-sm">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="truncate">{activeGame.name}</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {new Date(activeGame.createdAt).toLocaleString()}
+                    </span>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-3 grid gap-1">
+                <div className="text-xs">
+                  <span className="font-medium">Inv 1:</span> {activeGame.investigator1.name}
+                </div>
+                <div className="text-xs">
+                  <span className="font-medium">Inv 2:</span> {activeGame.investigator2?.name ?? "—"}
+                </div>
+              </CardContent>
+            </Card>
 
-          <GameTrackerView
-          
-            
-          game={activeGame} onUpdate={updateActive} onResetPhase={resetPhase} />
-        <div 
-        className="flex flex-row w-full justify-between">
+<div className="max-w-[420px] mx-auto mt-3 grid grid-cols-1 gap-3">
               <InvestigatorCard
                 game={{
                   ...activeGame,
@@ -609,8 +608,59 @@ export default function Tracker({
                     : undefined,
                 }}
               />
+            </div>
+
+            <div className="max-w-[420px] mx-auto flex items-center gap-2 mt-3">
+              <Button variant="destructive" size="sm" className="h-8" onClick={() => deleteGame(activeGame.id)}>
+                Reset Game
+              </Button>
+            </div>
+          </div>
+
+          {/* Desktop view */}
+          <div className="hidden md:block">
+            <GameTrackerViewDesktop game={activeGame} onUpdate={updateActive} />
+
+<div className="grid grid-cols-1 gap-4 mt-4">
+              <Card className="col-span-6">
+                <CardHeader className="py-3 px-4">
+                  <CardTitle className="text-base flex items-center justify-between">
+                    <span>{activeGame.name}</span>
+                    <span className="text-sm font-normal text-muted-foreground">
+                      {new Date(activeGame.createdAt).toLocaleString()}
+                    </span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 grid grid-cols-2 gap-2">
+                  <div className="text-sm">
+                    <span className="font-medium">Investigator 1:</span> {activeGame.investigator1.name}
+                  </div>
+                  <div className="text-sm">
+                    <span className="font-medium">Investigator 2:</span> {activeGame.investigator2?.name ?? "—"}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="col-span-6">
+                <InvestigatorCard
+                  game={{
+                    ...activeGame,
+                    investigator1: { id: activeGame.investigator1.code, ...activeGame.investigator1 },
+                    investigator2: activeGame.investigator2
+                      ? { id: activeGame.investigator2.code, ...activeGame.investigator2 }
+                      : undefined,
+                  }}
+                />
               </div>
-        </div>
+            </div>
+
+            <div className="flex items-center gap-2 mt-4">
+              <Button variant="destructive" onClick={() => deleteGame(activeGame.id)}>
+                Reset Game
+              </Button>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

@@ -37,7 +37,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <main className="font-sans flex flex-col items-center justify-items-center min-h-screen gap-4 max-w-4xl mx-auto px-2">
-            <NavigationBar />
+          
             {children}
             <BottomBar />
           </main>
