@@ -133,7 +133,6 @@ function baseMythos(): PhaseChecklistItem[] {
     { id: "doom", label: "Place 1 doom, check threshold", checked: false },
     { id: "enc1", label: "Investigator 1 encounter card", checked: false },
     { id: "enc2", label: "Investigator 2 encounter card", checked: false },
-    { id: "end", label: "End of phase", checked: false },
   ];
 }
 function baseEnemy(): PhaseChecklistItem[] {
@@ -141,7 +140,6 @@ function baseEnemy(): PhaseChecklistItem[] {
     { id: "start", label: "Start of phase", checked: false },
     { id: "hunters", label: "Hunter enemies move", checked: false },
     { id: "attacks", label: "Enemies attack", checked: false },
-    { id: "end", label: "End of phase", checked: false },
   ];
 }
 function baseUpkeep(): PhaseChecklistItem[] {
@@ -151,7 +149,6 @@ function baseUpkeep(): PhaseChecklistItem[] {
     { id: "draw2", label: "Investigator 2 draw a card", checked: false },
     { id: "resources", label: "Each Investigator gains 1 resource", checked: false },
     { id: "hand", label: "Check hand size", checked: false },
-    { id: "end", label: "End of phase/round", checked: false },
   ];
 }
 function makeInvestigatorTurn(labelPrefix: string): InvestigatorTurn {
@@ -196,7 +193,6 @@ function SectionHeading({ roman, title }: { roman: string; title: string }) {
     </div>
   );
 }
-function Divider() { return <div className="h-px w-full bg-border" />; }
 
 // ----------------- GameCreator -----------------
 function GameCreator({
@@ -335,17 +331,6 @@ const upkeepItems = React.useMemo(
     onUpdate({ ...game, tracker: { ...tracker, [phase]: list } });
   }
 
-  // ——— Investigation meta toggles ———
-  function setInvestigationMeta(
-    key: "startOfPhase" | "endOfPhase",
-    next: boolean
-  ) {
-    onUpdate({
-      ...game,
-      tracker: { ...tracker, investigation: { ...tracker.investigation, [key]: next } },
-    });
-  }
-
   // ——— Per-investigator turn toggles ———
   function setTurn(
     invCode: string,
@@ -395,18 +380,12 @@ const upkeepItems = React.useMemo(
   
         <CardContent>
           <Checklist items={mythosItems} onToggle={(id, n) => setChecklist("mythos", id, n)} />
-              <div className="flex justify-end pt-2">
-            <Button variant="secondary" size="sm" onClick={() => onResetPhase("mythos")}>
-              Reset Mythos
-            </Button>
-          </div>
+          
         </CardContent>
       </Card>
           <SectionHeading roman="II" title="INVESTIGATION PHASE" />
 
       {/* II. Investigation Phase */}
-      <Card>
-      
           <div className="grid gap-4 md:grid-cols-2">
             <InvestigatorTurnBlock
               name={game.investigator1.name}
@@ -421,31 +400,13 @@ const upkeepItems = React.useMemo(
               />
             )}
           </div>
-
-          <Divider />
-              <div 
-              className="flex items-center justify-between gap-3">
-          <label  className="flex items-center gap-3" >
-            <Checkbox
-              checked={tracker.investigation.endOfPhase}
-              onCheckedChange={(v) => setInvestigationMeta("endOfPhase", Boolean(v))}
-            />
-            <span className="text-sm">End of phase</span>
-          </label>
-           <Button variant="secondary" size="sm" onClick={() => onResetPhase("investigation")}>
-              Reset Investigation
-            </Button>
-            </div>
-      </Card>
-
+  
       {/* III. Enemy Phase */}
       <Card>
         <CardHeader className="space-y-3">
           <SectionHeading roman="III" title="ENEMY PHASE" />
           <div className="flex justify-end">
-            <Button variant="secondary" size="sm" onClick={() => onResetPhase("enemy")}>
-              Reset Enemy
-            </Button>
+           
           </div>
         </CardHeader>
         <CardContent>
@@ -458,9 +419,7 @@ const upkeepItems = React.useMemo(
         <CardHeader className="space-y-3">
           <SectionHeading roman="IV" title="UPKEEP PHASE" />
           <div className="flex justify-end">
-            <Button variant="secondary" size="sm" onClick={() => onResetPhase("upkeep")}>
-              Reset Upkeep
-            </Button>
+       
           </div>
         </CardHeader>
         <CardContent>
