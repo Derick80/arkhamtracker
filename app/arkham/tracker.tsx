@@ -37,6 +37,7 @@ type RoundTrackerState = {
   enemy: PhaseChecklistItem[];
   upkeep: PhaseChecklistItem[];
   meta: { scenario?: string; date?: string; notes?: string };
+  round: number;
 };
 type Game = {
   id: string;
@@ -194,6 +195,7 @@ function initTracker(inv1: SimpleInvestigator, inv2?: SimpleInvestigator | null)
     enemy: baseEnemy(),
     upkeep: baseUpkeep(),
     meta: { scenario: "", date: new Date().toISOString().slice(0, 10), notes: "" },
+    round: 1,
   };
 }
 
@@ -367,12 +369,25 @@ function useTrackerTransforms(game: Game, onUpdate: (next: Game) => void) {
     });
   }
 
-  function resetAllPhases() {
-    const fresh = initTracker(game.investigator1, game.investigator2 ?? null);
-    onUpdate({ ...game, tracker: fresh });
+
+  // <-- ADD: explicit setter for round (if you want manual tweaks)
+  function setRound(nextRound: number) {
+    onUpdate({ ...game, tracker: { ...tracker, round: Math.max(1, Math.floor(nextRound)) } });
   }
 
-  return { mythosItems, upkeepItems, setChecklist, setTurn, resetAllPhases };
+
+  function resetAllPhases() {
+    const fresh = initTracker(game.investigator1, game.investigator2 ?? null);
+     onUpdate({
+      ...game,
+      tracker: {
+        ...fresh,
+        round: (tracker.round ?? 1) + 1, // <-- bump round when cycling phases
+      },
+    });
+  }
+
+  return { mythosItems, upkeepItems, setChecklist, setTurn, resetAllPhases, setRound};
 }
 
 // ----------------- Mobile View -----------------
@@ -383,7 +398,7 @@ function GameTrackerViewMobile({
   game: Game;
   onUpdate: (next: Game) => void;
 }) {
-  const { mythosItems, upkeepItems, setChecklist, setTurn, resetAllPhases } = useTrackerTransforms(
+  const { mythosItems, upkeepItems, setChecklist, setTurn, resetAllPhases, setRound } = useTrackerTransforms(
     game,
     onUpdate
   );
@@ -417,10 +432,12 @@ function GameTrackerViewMobile({
       <h3 className="text-sm font-semibold text-muted-foreground">IV. UPKEEP PHASE</h3>
       <Checklist items={upkeepItems} onToggle={(id, n) => setChecklist("upkeep", id, n)} dense columns={2} />
 
-      <div className="flex justify-center pt-1">
+      <div className="flex justify-around pt-1">
         <Button variant="destructive" size="sm" className="h-8" onClick={resetAllPhases}>
-          Reset All
+         Next Round
         </Button>
+                <CompactRoundTracker round={t.round} onSet={setRound} />
+
       </div>
     </div>
   );
@@ -434,7 +451,7 @@ function GameTrackerViewDesktop({
   game: Game;
   onUpdate: (next: Game) => void;
 }) {
-  const { mythosItems, upkeepItems, setChecklist, setTurn, resetAllPhases } = useTrackerTransforms(
+  const { mythosItems, upkeepItems, setChecklist, setTurn, resetAllPhases, setRound } = useTrackerTransforms(
     game,
     onUpdate
   );
@@ -498,9 +515,12 @@ function GameTrackerViewDesktop({
       </div>
 
       <div className="flex justify-center">
+
         <Button variant="destructive" size="default" onClick={resetAllPhases}>
           Reset All Phases
         </Button>
+                        <CompactRoundTracker round={t.round ?? 1} onSet={setRound} />
+
       </div>
     </div>
   );
@@ -662,6 +682,49 @@ export default function Tracker({
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+
+
+
+// ADD this small component (place near your other UI helpers)
+function CompactRoundTracker({
+  round,
+  onSet,
+  className,
+}: {
+  round: number;
+  onSet: (next: number) => void;
+  className?: string;
+}) {
+  return (
+    <div className={cn("inline-flex items-center gap-2 rounded-lg border px-2 py-1", className)}>
+      <span className="text-xs text-muted-foreground">Round</span>
+      <div className="flex items-center gap-2">
+        <Button
+          type="button"
+          size="icon"
+          variant="outline"
+          className="h-7 w-7"
+          onClick={() => onSet(round - 1)}
+          aria-label="Decrement round"
+        >
+          –
+        </Button>
+        <span className="min-w-[1.5rem] text-sm text-center">{round}</span>
+        <Button
+          type="button"
+          size="icon"
+          variant="outline"
+          className="h-7 w-7"
+          onClick={() => onSet(round + 1)}
+          aria-label="Increment round"
+        >
+          +
+        </Button>
+      </div>
     </div>
   );
 }
