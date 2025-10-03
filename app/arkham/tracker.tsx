@@ -127,11 +127,11 @@ function InvestigatorTurnBlock({
         <span className={dense ? "text-[10px] text-muted-foreground" : "text-xs text-muted-foreground"}>
           Actions
         </span>
-        <div className={cn("flex items-center", dense ? "gap-2" : "gap-3")}>
+        <div className={cn("flex items-center gap-5", dense ? "gap-2" : "gap-3")}>
           {state.actions.map((a, idx) => (
             <Checkbox
               key={a.id}
-              className={dense ? "h-5 w-5" : "h-6 w-6"}
+              className={dense ? "h-6 w-6" : "h-6 w-6"}
               checked={a.checked}
               onCheckedChange={(v) => onToggle(`action:${a.id}`, Boolean(v))}
               aria-label={`Action ${idx + 1}`}
@@ -144,11 +144,13 @@ function InvestigatorTurnBlock({
 }
 
 // ----------------- Phase templates -----------------
-function baseMythos(): PhaseChecklistItem[] {
+function baseMythos(
+  firstRound: boolean = false
+): PhaseChecklistItem[] {
   return [
-    { id: "doom", label: "Place 1 doom (check threshold)", checked: false },
-    { id: "enc1", label: "Inv 1 encounter", checked: false },
-    { id: "enc2", label: "Inv 2 encounter", checked: false },
+    { id: "doom", label: "Place 1 doom (check threshold)", checked: firstRound },
+    { id: "enc1", label: "Inv 1 encounter", checked: firstRound },
+    { id: "enc2", label: "Inv 2 encounter", checked: firstRound },
   ];
 }
 function baseEnemy(): PhaseChecklistItem[] {
@@ -188,9 +190,11 @@ function makeInvestigationPhase(
   if (inv2) turns[inv2.code] = makeInvestigatorTurn(inv2.name);
   return { startOfPhase: false, turns, endOfPhase: false };
 }
-function initTracker(inv1: SimpleInvestigator, inv2?: SimpleInvestigator | null): RoundTrackerState {
+function initTracker(inv1: SimpleInvestigator, inv2?: SimpleInvestigator | null, firstRound = false): RoundTrackerState {
   return {
-    mythos: baseMythos(),
+    mythos: baseMythos(
+      firstRound
+    ),
     investigation: makeInvestigationPhase(inv1, inv2 ?? undefined),
     enemy: baseEnemy(),
     upkeep: baseUpkeep(),
@@ -246,7 +250,7 @@ function GameCreator({
       createdAt: Date.now(),
       investigator1: chosen1,
       investigator2: chosen2,
-      tracker: initTracker(chosen1, chosen2),
+      tracker: initTracker(chosen1, chosen2, true),
     };
     onCreate(game);
   }
@@ -422,6 +426,7 @@ function GameTrackerViewMobile({
             name={game.investigator2.name}
             state={t.investigation.turns[game.investigator2.code]}
             onToggle={(k, n) => setTurn(game.investigator2!.code, k, n)}
+            dense
           />
         )}
       </div>
