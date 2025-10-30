@@ -5,7 +5,6 @@ import { ArkhamInvestigatorCard } from "@/lib/arkham-types";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { tr } from "zod/v4/locales";
 export type SimpleInvestigator = Pick<
   ArkhamInvestigatorCard,
   | "code"
@@ -78,7 +77,6 @@ const investigatorRecords = await prisma.allInvestigators.findMany({
     },
 });
 
-console.log("Investigator Records:", investigatorRecords);
 if(investigatorRecords.length !== investigators.length){
     throw new Error("Some investigators not found");
 }
@@ -92,6 +90,7 @@ const createdCampaign = await prisma.campaign.create({
             create: {
                 name: scenarioName,
                 playerCount: investigators.length,
+                data:{}
             },
         },
         investigators: {
@@ -115,12 +114,31 @@ export const getScenarioById = async (scenarioId: string) => {
   return await prisma.scenario.findUnique({
     where: { id: scenarioId },
     include: {
+     
+     
       campaign: {
         include: {
           investigators: true,
+          
 
       }
     },  },    
 
+  });
+}
+
+/**
+ * Update the JSON data of a tracker.
+ * Accepts the tracker id and the entire tracker state object.
+ */
+export async function updateTrackerData(id: string, data: any) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Not authenticated");
+
+  return prisma.scenario.update({
+    where: { id },
+    data: { 
+      data
+     },
   });
 }

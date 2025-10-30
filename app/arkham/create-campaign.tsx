@@ -1,9 +1,24 @@
 'use client'
 import React from "react";
-import { createCampaign, SimpleInvestigator } from "@/app/actions/arkham-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+export type TypedInvestigator = {
+    code: string;
+    name: string;
+    subname?: string;
+    faction_name?: string | null;
+    health?: number;
+    sanity?: number;
+    skill_willpower?: number;
+    skill_intellect?: number;
+    skill_combat?: number;
+    skill_agility?: number;
+    real_text?: string;
+    imagesrc?: string | null;
+
+}
 import { Select,
     SelectContent,
     SelectItem,
@@ -11,10 +26,11 @@ import { Select,
     SelectValue
 
  } from "@/components/ui/select";
+import { createCampaign } from "../actions/arkham-actions";
 const CreateCampaingn = ({
     investigators
 }:{
-    investigators:SimpleInvestigator[]
+    investigators:TypedInvestigator[]
 }) => {
     const [inv1, setInv1] = React.useState<string>("");
     const [inv2, setInv2] = React.useState<string>("none");

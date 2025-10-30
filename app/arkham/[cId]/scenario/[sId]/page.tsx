@@ -1,4 +1,5 @@
 import { getScenarioById } from "@/app/actions/arkham-actions";
+import InteractiveTracker from "@/app/arkham/interactive-tracker";
 
 
 export default async function Page(props: {
@@ -11,13 +12,14 @@ export default async function Page(props: {
  const cId = params.cId;
  const sId = params.sId;
   const scenario = await getScenarioById(sId);
-  console.log("Scenario:", scenario);
-  const investigators = scenario?.campaign.investigators || [];
-  console.log("Investigators:", investigators);
+  if (!scenario) {
+    return <div>Scenario not found</div>;
+  }
   return (
     <div>
       <h1>Campaign ID: {cId}</h1>
       <h2>Scenario ID: {sId}</h2>
+      <InteractiveTracker scenarioData={scenario} />
     </div>
   );
 }

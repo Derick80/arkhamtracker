@@ -105,6 +105,7 @@ model Scenario {
   completed Boolean @default(false)
   campaign  Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   campaignId String
+  data Json  @default("{}")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

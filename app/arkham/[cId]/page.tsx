@@ -1,3 +1,5 @@
-export default function Page({ params }: { params: { cId: string } }) {
-  return <div>Campaign ID: {params.cId}</div>;
+export default async function Page({ params }: { params: Promise<{ cId: string }> }) {
+  const paramsResolved = await params;
+  return <div>Campaign ID: {paramsResolved.cId}</div>;
+  
 }
