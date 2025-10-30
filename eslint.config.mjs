@@ -16,6 +16,7 @@ const eslintConfig = [
     rules: {
       "@typescript-eslint/no-require-imports": "warn",
       "@typescript-eslint/no-this-alias": "warn",
+      "@typescript-eslint/no-explicit-any": "off",
     },
   },
 ];

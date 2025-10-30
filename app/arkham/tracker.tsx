@@ -45,6 +45,8 @@ type Game = {
   createdAt: number;
   investigator1: SimpleInvestigator;
   investigator2?: SimpleInvestigator | null;
+  investigator3?: SimpleInvestigator | null;
+  investigator4?: SimpleInvestigator | null;
   tracker: RoundTrackerState;
 };
 
@@ -117,17 +119,17 @@ function InvestigatorTurnBlock({
   dense?: boolean;
 }) {
   return (
-    <div className={cn("rounded-lg border", dense ? "p-2 space-y-1" : "p-3 space-y-2")}>
+    <div className={cn("rounded-lg border", dense ? "p-1 space-y-1" : "p-2 space-y-2")}>
       <div className="flex items-center justify-between">
         <span className={dense ? "text-sm font-medium truncate" : "text-base font-medium truncate"}>
           {name}
         </span>
       </div>
-      <div className={dense ? "space-y-1" : "space-y-2"}>
-        <span className={dense ? "text-[10px] text-muted-foreground" : "text-xs text-muted-foreground"}>
+      <div className="space-y-1">
+        <span className={dense ? "text-[8px] text-muted-foreground" : "text-xs text-muted-foreground"}>
           Actions
         </span>
-        <div className={cn("flex items-center gap-5", dense ? "gap-2" : "gap-3")}>
+        <div className={cn("flex items-center gap-4", dense ? "gap-1" : "gap-2")}>
           {state.actions.map((a, idx) => (
             <Checkbox
               key={a.id}
@@ -151,6 +153,9 @@ function baseMythos(
     { id: "doom", label: "Place 1 doom (check threshold)", checked: firstRound },
     { id: "enc1", label: "Inv 1 encounter", checked: firstRound },
     { id: "enc2", label: "Inv 2 encounter", checked: firstRound },
+    { id: "enc3", label: "Inv 3 encounter", checked: firstRound },
+    { id: "enc4", label: "Inv 4 encounter", checked: firstRound },
+
   ];
 }
 function baseEnemy(): PhaseChecklistItem[] {
@@ -164,6 +169,8 @@ function baseUpkeep(): PhaseChecklistItem[] {
     { id: "reset", label: "Ready exhausted", checked: false },
     { id: "draw1", label: "Inv 1 draw", checked: false },
     { id: "draw2", label: "Inv 2 draw", checked: false },
+    { id: "draw3", label: "Inv 3 draw", checked: false },
+    { id: "draw4", label: "Inv 4 draw", checked: false },
     { id: "resources", label: "+1 resource each", checked: false },
     { id: "hand", label: "Check hand size", checked: false },
   ];
@@ -176,26 +183,34 @@ function makeInvestigatorTurn(labelPrefix: string): InvestigatorTurn {
       { id: "a2", label: `${labelPrefix} Action 2`, checked: false },
       { id: "a3", label: `${labelPrefix} Action 3`, checked: false },
       { id: "a4", label: `${labelPrefix} Action 4 (if any)`, checked: false },
+      { id: "a5", label: `${labelPrefix} Action 5 (if any)`, checked: false },
     ],
     endOfTurn: false,
   };
 }
 function makeInvestigationPhase(
   inv1: SimpleInvestigator,
-  inv2?: SimpleInvestigator | null
+  inv2?: SimpleInvestigator | null,
+  inv3?: SimpleInvestigator | null,
+  inv4?: SimpleInvestigator | null
 ): InvestigationPhase {
   const turns: Record<string, InvestigatorTurn> = {
     [inv1.code]: makeInvestigatorTurn(inv1.name),
   };
   if (inv2) turns[inv2.code] = makeInvestigatorTurn(inv2.name);
+  if (inv3) turns[inv3.code] = makeInvestigatorTurn(inv3.name);
+  if (inv4) turns[inv4.code] = makeInvestigatorTurn(inv4.name);
   return { startOfPhase: false, turns, endOfPhase: false };
 }
-function initTracker(inv1: SimpleInvestigator, inv2?: SimpleInvestigator | null, firstRound = false): RoundTrackerState {
+function initTracker(inv1: SimpleInvestigator, inv2?: SimpleInvestigator | null,
+  inv3?: SimpleInvestigator | null,
+  inv4?: SimpleInvestigator | null,
+  firstRound = false): RoundTrackerState {
   return {
     mythos: baseMythos(
       firstRound
     ),
-    investigation: makeInvestigationPhase(inv1, inv2 ?? undefined),
+    investigation: makeInvestigationPhase(inv1, inv2, inv3, inv4),
     enemy: baseEnemy(),
     upkeep: baseUpkeep(),
     meta: { scenario: "", date: new Date().toISOString().slice(0, 10), notes: "" },
@@ -236,9 +251,13 @@ function GameCreator({
   const [name, setName] = useState("");
   const [inv1, setInv1] = useState<string>("");
   const [inv2, setInv2] = useState<string>("none");
+  const [inv3, setInv3] = useState<string>("none");
+  const [inv4, setInv4] = useState<string>("none");
 
   const chosen1 = investigators?.find((i) => i.code === inv1) || null;
   const chosen2 = inv2 === "none" ? null : investigators?.find((i) => i.code === inv2) || null;
+  const chosen3 = inv3 === "none" ? null : investigators?.find((i) => i.code === inv3) || null;
+  const chosen4 = inv4 === "none" ? null : investigators?.find((i) => i.code === inv4) || null;
   const nameTaken = useMemo(() => name.trim() && existingNames.includes(name.trim()), [name, existingNames]);
 
   function handleCreate() {
@@ -250,7 +269,12 @@ function GameCreator({
       createdAt: Date.now(),
       investigator1: chosen1,
       investigator2: chosen2,
-      tracker: initTracker(chosen1, chosen2, true),
+      investigator3: chosen3,
+      investigator4: chosen4,
+      tracker: initTracker(chosen1, chosen2,
+        chosen3,
+        chosen4,
+        true),
     };
     onCreate(game);
   }
@@ -307,6 +331,42 @@ function GameCreator({
               </SelectContent>
             </Select>
           </div>
+           <div className="space-y-1">
+            <label className="text-xs md:text-sm font-medium">Investigator 3</label>
+            <Select value={inv3} onValueChange={setInv3}>
+              <SelectTrigger className="h-8 md:h-9">
+                <SelectValue placeholder="Optional" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                {investigators
+                  ?.filter((i) => i.code !== inv1 && i.code !== inv2 && i.code !== inv4)
+                  .map((i) => (
+                    <SelectItem key={i.code} value={i.code}>
+                      {i.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+           <div className="space-y-1">
+            <label className="text-xs md:text-sm font-medium">Investigator 4</label>
+            <Select value={inv4} onValueChange={setInv4}>
+              <SelectTrigger className="h-8 md:h-9">
+                <SelectValue placeholder="Optional" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                {investigators
+                  ?.filter((i) => i.code !== inv1 && i.code !== inv2 && i.code !== inv3)
+                  .map((i) => (
+                    <SelectItem key={i.code} value={i.code}>
+                      {i.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <Button
@@ -324,18 +384,31 @@ function GameCreator({
 // ----------------- Shared tracker logic -----------------
 function useTrackerTransforms(game: Game, onUpdate: (next: Game) => void) {
   const { tracker } = game;
-  const isTwoPlayer = !!game.investigator2;
 
-  const mythosItems = React.useMemo(
-    () => (isTwoPlayer ? tracker.mythos : tracker.mythos.filter((i) => i.id !== "enc2")),
-    [isTwoPlayer, tracker.mythos]
-  );
+  // Determine how many investigators are in play
+  const playerCount = [game.investigator1, game.investigator2, game.investigator3, game.investigator4]
+    .filter(Boolean).length;
 
-  const upkeepItems = React.useMemo(
-    () => (isTwoPlayer ? tracker.upkeep : tracker.upkeep.filter((i) => i.id !== "draw2")),
-    [isTwoPlayer, tracker.upkeep]
-  );
+  // --- Filter checklists dynamically based on player count ---
+  const mythosItems = React.useMemo(() => {
+    return tracker.mythos.filter((i) => {
+      if (playerCount < 2 && i.id === "enc2") return false;
+      if (playerCount < 3 && i.id === "enc3") return false;
+      if (playerCount < 4 && i.id === "enc4") return false;
+      return true;
+    });
+  }, [tracker.mythos, playerCount]);
 
+  const upkeepItems = React.useMemo(() => {
+    return tracker.upkeep.filter((i) => {
+      if (playerCount < 2 && i.id === "draw2") return false;
+      if (playerCount < 3 && i.id === "draw3") return false;
+      if (playerCount < 4 && i.id === "draw4") return false;
+      return true;
+    });
+  }, [tracker.upkeep, playerCount]);
+
+  // --- Standard mutation helpers ---
   function setChecklist(phase: "mythos" | "enemy" | "upkeep", id: string, next: boolean) {
     const list = tracker[phase].map((i) => (i.id === id ? { ...i, checked: next } : i));
     onUpdate({ ...game, tracker: { ...tracker, [phase]: list } });
@@ -352,7 +425,7 @@ function useTrackerTransforms(game: Game, onUpdate: (next: Game) => void) {
 
     let nextTurn = { ...turn };
     if (key === "startOfTurn" || key === "endOfTurn") {
-      (nextTurn as InvestigatorTurn)[key] = next;
+      nextTurn[key] = next;
     } else if (key.startsWith("action:")) {
       const actionId = key.split(":")[1]!;
       nextTurn = {
@@ -373,26 +446,29 @@ function useTrackerTransforms(game: Game, onUpdate: (next: Game) => void) {
     });
   }
 
-
-  // <-- ADD: explicit setter for round (if you want manual tweaks)
   function setRound(nextRound: number) {
     onUpdate({ ...game, tracker: { ...tracker, round: Math.max(1, Math.floor(nextRound)) } });
   }
 
-
   function resetAllPhases() {
-    const fresh = initTracker(game.investigator1, game.investigator2 ?? null);
-     onUpdate({
+    const fresh = initTracker(
+      game.investigator1,
+      game.investigator2 ?? null,
+      game.investigator3 ?? null,
+      game.investigator4 ?? null
+    );
+    onUpdate({
       ...game,
       tracker: {
         ...fresh,
-        round: (tracker.round ?? 1) + 1, // <-- bump round when cycling phases
+        round: (tracker.round ?? 1) + 1,
       },
     });
   }
 
-  return { mythosItems, upkeepItems, setChecklist, setTurn, resetAllPhases, setRound};
+  return { mythosItems, upkeepItems, setChecklist, setTurn, resetAllPhases, setRound };
 }
+
 
 // ----------------- Mobile View -----------------
 function GameTrackerViewMobile({
@@ -409,12 +485,12 @@ function GameTrackerViewMobile({
   const t = game.tracker;
 
   return (
-    <div className="space-y-3 max-w-[420px] mx-auto">
-      <h3 className="text-sm font-semibold text-muted-foreground">I. MYTHOS PHASE</h3>
+    <div className="space-y-2 max-w-[420px] mx-auto">
+      <SectionHeading roman="I" title="MYTHOS PHASE" className="text-sm" />
       <Checklist items={mythosItems} onToggle={(id, n) => setChecklist("mythos", id, n)} dense columns={2} />
 
       <SectionHeading roman="II" title="INVESTIGATION PHASE" className="text-sm" />
-      <div className="grid gap-2">
+      <div className="grid gap-1">
         <InvestigatorTurnBlock
           name={game.investigator1.name}
           state={t.investigation.turns[game.investigator1.code]}
@@ -429,6 +505,22 @@ function GameTrackerViewMobile({
             dense
           />
         )}
+        {game.investigator3 && (
+  <InvestigatorTurnBlock
+    name={game.investigator3.name}
+    state={t.investigation.turns[game.investigator3.code]}
+    onToggle={(k, n) => setTurn(game.investigator3!.code, k, n)}
+    dense
+  />
+)}
+        {game.investigator4 && (
+  <InvestigatorTurnBlock
+    name={game.investigator4.name}
+    state={t.investigation.turns[game.investigator4.code]}
+    onToggle={(k, n) => setTurn(game.investigator4!.code, k, n)}
+    dense
+  />
+)}
       </div>
 
       <h3 className="text-sm font-semibold text-muted-foreground">III. ENEMY PHASE</h3>
@@ -493,6 +585,22 @@ function GameTrackerViewDesktop({
                 onToggle={(k, n) => setTurn(game.investigator2!.code, k, n)}
               />
             )}
+            {game.investigator3 && (
+  <InvestigatorTurnBlock
+    name={game.investigator3.name}
+    state={t.investigation.turns[game.investigator3.code]}
+    onToggle={(k, n) => setTurn(game.investigator3!.code, k, n)}
+  />
+)}
+
+            {game.investigator4 && (
+  <InvestigatorTurnBlock
+    name={game.investigator4.name}
+    state={t.investigation.turns[game.investigator4.code]}
+    onToggle={(k, n) => setTurn(game.investigator4!.code, k, n)}
+  />
+)}  
+
           </CardContent>
         </Card>
       </div>
@@ -571,23 +679,6 @@ export default function Tracker({
     if (activeId === id) setActiveId(null);
   }
 
-  function resetPhase(phase: "mythos" | "investigation" | "enemy" | "upkeep") {
-    if (!activeGame) return;
-    let tracker = activeGame.tracker;
-    if (phase === "mythos") tracker = { ...tracker, mythos: baseMythos() };
-    if (phase === "enemy") tracker = { ...tracker, enemy: baseEnemy() };
-    if (phase === "upkeep") tracker = { ...tracker, upkeep: baseUpkeep() };
-    if (phase === "investigation") {
-      tracker = {
-        ...tracker,
-        investigation: makeInvestigationPhase(
-          activeGame.investigator1,
-          activeGame.investigator2 ?? undefined
-        ),
-      };
-    }
-    updateActive({ ...activeGame, tracker });
-  }
 
   return (
     <div className="container mx-auto px-2 md:px-6 py-4 md:py-8 space-y-4 md:space-y-6">
@@ -614,12 +705,7 @@ export default function Tracker({
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-3 grid gap-1">
-                <div className="text-xs">
-                  <span className="font-medium">Inv 1:</span> {activeGame.investigator1.name}
-                </div>
-                <div className="text-xs">
-                  <span className="font-medium">Inv 2:</span> {activeGame.investigator2?.name ?? "—"}
-                </div>
+               
               </CardContent>
             </Card>
 
@@ -635,7 +721,7 @@ export default function Tracker({
               />
             </div>
 
-            <div className="max-w-[420px] mx-auto flex items-center gap-2 mt-3">
+            <div className="max-w-[420px] mx-auto mb-10 flex items-center gap-2 mt-3">
               <Button variant="destructive" size="sm" className="h-8" onClick={() => deleteGame(activeGame.id)}>
                 Reset Game
               </Button>

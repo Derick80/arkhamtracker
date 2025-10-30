@@ -1,8 +1,10 @@
 "use server";
 
+import { auth } from "@/auth";
 import { ArkhamInvestigatorCard } from "@/lib/arkham-types";
 import { prisma } from "@/lib/prisma";
-
+import { redirect } from "next/navigation";
+import { z } from "zod";
 export type SimpleInvestigator = Pick<
   ArkhamInvestigatorCard,
   | "code"
@@ -30,3 +32,113 @@ export type TypeInvestigator = SimpleInvestigator & {
 export const getDBInvestigators = async () => {
   return await prisma.allInvestigators.findMany();
 };
+
+
+const createCampaignSchema = z.object({
+  campaignName: z.string().min(1),
+  scenarioName: z.string().min(1),
+  investigators: z.array(z.string()).min(1).max(4),
+});
+
+
+export const createCampaign = async (prevState:any, formData: FormData) => {
+const validatedData = createCampaignSchema.parse({
+    campaignName: formData.get("campaignName"),
+    scenarioName: formData.get("scenarioName"),
+    investigators: [
+        formData.get("investigator1"),
+        formData.get("investigator2"),
+        formData.get("investigator3"),
+        formData.get("investigator4"),
+    ].filter((inv): inv is string => typeof inv === "string" && inv !== "none"),
+});
+
+if(!validatedData){
+    throw new Error("Invalid form data");
+}
+
+const { campaignName, scenarioName, investigators } = validatedData;
+
+const session = await auth();
+if (!session?.user) {
+    throw new Error("Unauthorized");
+}
+
+const userId = session.user.id;
+if(!userId){
+    throw new Error("User ID not found");
+}
+
+const investigatorRecords = await prisma.allInvestigators.findMany({
+    where: {
+        code: {
+            in: investigators,
+        },
+    },
+});
+
+if(investigatorRecords.length !== investigators.length){
+    throw new Error("Some investigators not found");
+}
+
+
+const createdCampaign = await prisma.campaign.create({
+    data: {
+        name: campaignName,
+        userId,
+        scenarios: {
+            create: {
+                name: scenarioName,
+                playerCount: investigators.length,
+                data:{}
+            },
+        },
+        investigators: {
+            connect: investigatorRecords.map((inv) => ({
+                id: inv.id,
+            }))
+        },
+    },
+
+    include: {
+        scenarios: true,
+    },
+
+})
+redirect(`/arkham/${createdCampaign.id}/scenario/${createdCampaign.scenarios[0].id}`);
+
+};
+
+
+export const getScenarioById = async (scenarioId: string) => {
+  return await prisma.scenario.findUnique({
+    where: { id: scenarioId },
+    include: {
+     
+     
+      campaign: {
+        include: {
+          investigators: true,
+          
+
+      }
+    },  },    
+
+  });
+}
+
+/**
+ * Update the JSON data of a tracker.
+ * Accepts the tracker id and the entire tracker state object.
+ */
+export async function updateTrackerData(id: string, data: any) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Not authenticated");
+
+  return prisma.scenario.update({
+    where: { id },
+    data: { 
+      data
+     },
+  });
+}
