@@ -12,6 +12,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { InfoIcon } from "lucide-react";
+import ModeToggle from "./mode-toggle";
 
 const BottomBar =()=> {
   const [open, setOpen] = useState(false);
@@ -69,9 +70,9 @@ const BottomBar =()=> {
               <strong>Key features</strong>
             </p>
             <ul className="list-disc pl-5 space-y-1">
-              <li>Create a game with 1–2 investigators and auto-save progress.</li>
-              <li>Round tracker: Mythos, Investigation, Enemy, Upkeep.</li>
-              <li>Per-investigator turn blocks and quick notes.</li>
+              <li>Create a game with 1–4 investigators and auto-save progress.</li>
+              <li>Round tracker: Mythos, Investigation, Enemy, Upkeep, Advance Round</li>
+              <li>Build with Mobile in mind (Pixel Pro tested).</li>
               <li>Health/Sanity/Resources trackers persisted per game.</li>
               <li>Campaign notes that are not affected by “Reset All Phases.”</li>
             </ul>
@@ -79,7 +80,8 @@ const BottomBar =()=> {
               Tip: Press <kbd className="rounded border px-1">?</kbd> to open this dialog.
             </p>
           </div>
-
+somethings
+<ModeToggle />
           <DialogFooter>
             <Button onClick={() => setOpen(false)}>Close</Button>
           </DialogFooter>
