@@ -24,10 +24,9 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  games Game[]
   // Optional for WebAuthn support
   Authenticator Authenticator[]
- 
+  campaigns Campaign[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -87,35 +86,30 @@ model Authenticator {
   @@id([userId, credentialID])
 }
 
-
-
-model Game {
+model Campaign {
   id        String   @id @default(cuid())
   name      String
-  investigators Investigator[]
+  investigators AllInvestigators[] @relation("CampaignInvestigators")
+  
+  scenarios Scenario[]
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId  String
-  // scenario tracking
-  scenario String?
-  // note tracking
-  notes String?
-  // Mythos phase tracking
-  mythosPlaceDoom Boolean @default(false)
-  mythosDrawP1    Boolean @default(false)
-  mythosDrawP2    Boolean @default(false)
-  mythosEnd       Boolean @default(false)
-  // Enemies phase tracking
-  enemiesHunterMove Boolean @default(false)
-  enemiesAttack     Boolean @default(false)
-  // Upkeep phase tracking
-  upkeepUnexhaust  Boolean @default(false)
-  upkeepDrawP1     Boolean @default(false)
-  upkeepDrawP2     Boolean @default(false)
-  upkeepGainRes    Boolean @default(false)
-  upkeepCheckHand  Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Scenario {
+  id        String   @id @default(cuid())
+  name      String
+  playerCount Int
+  completed Boolean @default(false)
+  campaign  Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
 
 
 model AllInvestigators {
@@ -132,30 +126,7 @@ model AllInvestigators {
   skill_agility Int
   real_text String
   imagesrc  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Investigator {
-  id        String   @id @default(cuid())
-  code      String  
-  name      String
-  subname   String
-  faction_name String
-  health    Int
-  sanity    Int
-  skill_willpower Int
-  skill_intellect Int
-  skill_combat Int
-  skill_agility Int
-  real_text String
-  imagesrc  String
-  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
-    gameId    String
-    currentHealth Int?
-    currentSanity Int?
-    currentResources Int?
-    actions Int?
+  campaigns Campaign[] @relation("CampaignInvestigators")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

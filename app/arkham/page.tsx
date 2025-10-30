@@ -1,4 +1,5 @@
 import { getDBInvestigators } from "../actions/arkham-actions";
+import CreateCampaingn from "./create-campaign";
 import Tracker from "./tracker";
 
 
@@ -9,10 +10,10 @@ export default async function Page() {
     return null;
   }
  
-  const simpleInvestigators = investigators.map(inv => ({
-    ...inv,
-    faction_name: inv.faction_name ?? "",
-  }));
-  return <Tracker initialInvestigators={simpleInvestigators} />;
-  
+  return(
+    <div className="space-y-6 py-6">
+<CreateCampaingn investigators={investigators} />
+
+      </div>
+  )
 }
