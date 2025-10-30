@@ -15,6 +15,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { SimpleInvestigator } from "../actions/arkham-actions";
 import InvestigatorCard from "./arkham-inv-card";
+import { cn } from "@/lib/utils";
 
 // ----------------- Types -----------------
 export type InvestigatorOption = { code: string; name: string };
@@ -50,10 +51,6 @@ type Game = {
   tracker: RoundTrackerState;
 };
 
-// ----------------- Shared UI helpers -----------------
-function cn(...xs: Array<string | false | null | undefined>) {
-  return xs.filter(Boolean).join(" ");
-}
 
 function SectionHeading({ roman, title, className }: { roman: string; title: string; className?: string }) {
   return (
@@ -91,7 +88,7 @@ function Checklist({
           key={it.id}
           className={cn(
             "flex items-center gap-2 rounded-lg border",
-            dense ? "p-2" : "p-3",
+            dense ? "p-1" : "p-2",
             it.checked && "bg-muted"
           )}
         >
@@ -107,6 +104,10 @@ function Checklist({
   );
 }
 
+
+// ----------------- Investigator Turn Block ----------------- //
+
+// this component displays the action pips for an investigator's turn. 
 function InvestigatorTurnBlock({
   name,
   state,
@@ -120,11 +121,23 @@ function InvestigatorTurnBlock({
 }) {
   return (
     <div className={cn("rounded-lg border", dense ? "p-1 space-y-1" : "p-2 space-y-2")}>
+      {/* Header row with button on the right */}
       <div className="flex items-center justify-between">
         <span className={dense ? "text-sm font-medium truncate" : "text-base font-medium truncate"}>
           {name}
         </span>
+        {/* <Button
+          variant="ghost"
+          size="icon"
+          className={dense ? "h-6 w-6" : "h-7 w-7"}
+          onClick={() => console.log(`Button clicked for ${name}`)}
+          aria-label={`Menu for ${name}`}
+        >
+          ⋮
+        </Button> */}
       </div>
+
+      {/* Action checkboxes */}
       <div className="space-y-1">
         <span className={dense ? "text-[8px] text-muted-foreground" : "text-xs text-muted-foreground"}>
           Actions
@@ -144,6 +157,7 @@ function InvestigatorTurnBlock({
     </div>
   );
 }
+
 
 // ----------------- Phase templates -----------------
 function baseMythos(
@@ -717,6 +731,12 @@ export default function Tracker({
                   investigator2: activeGame.investigator2
                     ? { id: activeGame.investigator2.code, ...activeGame.investigator2 }
                     : undefined,
+                  investigator3: activeGame.investigator3
+                    ? { id: activeGame.investigator3.code, ...activeGame.investigator3 }
+                    : undefined,
+                  investigator4: activeGame.investigator4
+                    ? { id: activeGame.investigator4.code, ...activeGame.investigator4 }
+                    : undefined,
                 }}
               />
             </div>
@@ -759,6 +779,12 @@ export default function Tracker({
                     investigator1: { id: activeGame.investigator1.code, ...activeGame.investigator1 },
                     investigator2: activeGame.investigator2
                       ? { id: activeGame.investigator2.code, ...activeGame.investigator2 }
+                      : undefined,
+                    investigator3: activeGame.investigator3
+                      ? { id: activeGame.investigator3.code, ...activeGame.investigator3 }
+                      : undefined,
+                    investigator4: activeGame.investigator4
+                      ? { id: activeGame.investigator4.code, ...activeGame.investigator4 }
                       : undefined,
                   }}
                 />

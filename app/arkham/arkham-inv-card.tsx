@@ -31,6 +31,8 @@ export type AHLCGTrackerGame = {
   createdAt: number;
   investigator1: AHLCGInvestigator;
   investigator2?: AHLCGInvestigator | null;
+  investigator3?: AHLCGInvestigator | null;
+  investigator4?: AHLCGInvestigator | null;
   // other fields (tracker, notes) are ignored here
 };
 
@@ -170,7 +172,6 @@ function HealthTracker({
 
   console.log(type,"Health Tracker  ")
   // capitalize first letter for display
-  const updatedType = type.charAt(0).toUpperCase() + type.slice(1);
   // Avoid jarring SSR/CSR mismatch: show base until hydrated, then real value
   const display = hydrated ? value : baseHealth;
   return (
@@ -367,6 +368,8 @@ export default function InvestigatorCards({
         gameId={game.id}
       />
       {game.investigator2 ? <InvestigatorCard inv={game.investigator2} gameId={game.id} /> : null}
+      {game.investigator3 ? <InvestigatorCard inv={game.investigator3} gameId={game.id} /> : null}
+      {game.investigator4 ? <InvestigatorCard inv={game.investigator4} gameId={game.id} /> : null}
     </div>
   );
 }
