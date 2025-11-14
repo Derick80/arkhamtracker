@@ -108,10 +108,19 @@ model Scenario {
   data Json  @default("{}")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  actionTrackers ActionTracker[]
 }
 
+model ActionTracker {
+  id          String    @id @default(cuid())
+  turnNumber  Int
+  actions     Boolean[] // [true, false, false, true]
+  createdAt   DateTime  @default(now())
 
-
+  // Foreign key to Scenario
+  scenarioId  String
+  scenario    Scenario  @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+}
 
 model AllInvestigators {
   id        String   @id @default(cuid())
@@ -131,3 +140,4 @@ model AllInvestigators {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
