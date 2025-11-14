@@ -80,8 +80,10 @@ const BottomBar =()=> {
               Tip: Press <kbd className="rounded border px-1">?</kbd> to open this dialog.
             </p>
           </div>
-somethings
-<ModeToggle />
+          <p className="mt-4 text-xs text-center text-muted-foreground">
+            &copy; 2024 Developed by Derick H. for personal use. Not affiliated with Fantasy Flight Games.
+          </p>
+          <ModeToggle />
           <DialogFooter>
             <Button onClick={() => setOpen(false)}>Close</Button>
           </DialogFooter>
